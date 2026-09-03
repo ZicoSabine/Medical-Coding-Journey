@@ -81,7 +81,7 @@ class CaseActivityTests(unittest.TestCase):
                       "2026-02-30", "2026-09-03T00:00:00Z", "42", "[2026-09-03]"]:
             with self.subTest(value=value):
                 self.note(completed=value)
-                with self.assertRaisesRegex(ValidationError, r"date"):
+                with self.assertRaisesRegex(ValidationError, r"date:.*YYYY-MM-DD"):
                     self.activity()
 
     def test_all_difficulties_work_and_metadata_retained(self):

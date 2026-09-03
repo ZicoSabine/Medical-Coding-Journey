@@ -94,10 +94,12 @@ def frontmatter(path: Path) -> dict:
         raise ValidationError("frontmatter is missing its closing --- delimiter")
     try:
         properties = yaml.load("\n".join(lines[1:closing]), Loader=UniqueKeyLoader)
-    except (yaml.YAMLError, ValueError, TypeError) as error:
-        if isinstance(error, ValidationError):
-            raise
-        raise ValidationError("frontmatter: invalid YAML or calendar date") from error
+    except ValidationError:
+        raise
+    except yaml.YAMLError as error:
+        raise ValidationError("frontmatter: expected valid YAML Properties between --- delimiters") from error
+    except (ValueError, TypeError) as error:
+        raise ValidationError("date: expected a real calendar date in YYYY-MM-DD format") from error
     if properties is None:
         return {}
     if not isinstance(properties, dict):
