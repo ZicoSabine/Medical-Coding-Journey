@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="A medical coding learning journey, documented through case studies and daily practice.">
+  <title>Medical Coding Journey · Case Study Activity</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="masthead">
+      <a class="identity" href="./" aria-label="Medical Coding Journey home">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>THE LEARNING LOG</span>
+      </a>
+      <a class="repository-link" href="https://github.com/ZicoSabine/Medical-Coding-Journey">View on GitHub <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <section class="introduction" aria-labelledby="page-title">
+      <p class="eyebrow">STUDY · PRACTICE · REFLECT</p>
+      <h1 id="page-title">Medical Coding Journey<span class="title-dot">.</span></h1>
+      <p class="description">Building understanding, one case at a time.</p>
+      <p class="subjects">ICD-10-CM <span aria-hidden="true">/</span> CPT <span aria-hidden="true">/</span> HCPCS Level II</p>
+    </section>
+
+    <section class="activity-panel" aria-labelledby="activity-title" aria-busy="true">
+      <div class="panel-heading">
+        <div>
+          <h2 id="activity-title">Case Study Activity</h2>
+          <p class="panel-description">A year of completed case studies.</p>
+        </div>
+        <p class="date-range" id="date-range"></p>
+      </div>
+
+      <p id="load-state" role="status">Loading case study activity…</p>
+      <button class="retry" id="retry" type="button" hidden>Try again</button>
+      <div id="activity-content" hidden>
+        <div class="heatmap-scroll" id="heatmap-scroll" role="region" aria-label="Case study activity calendar" aria-describedby="calendar-help">
+          <div class="heatmap-layout" id="heatmap-layout">
+            <div class="month-labels" id="month-labels" aria-hidden="true"></div>
+            <div class="weekday-labels" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            <div class="heatmap" id="heatmap" role="group" aria-label="Daily completed cases, Monday through Sunday"></div>
+          </div>
+        </div>
+        <div class="graph-caption">
+          <p id="calendar-help">Select a day to explore. Use arrow keys to move.</p>
+          <div class="legend" aria-label="Cases completed per day"><span>Less</span><div id="legend-levels" class="legend-levels"></div><span>More</span></div>
+        </div>
+        <div class="selected-day" id="selected-day" role="status" aria-live="polite" aria-atomic="true">
+          <span class="selection-mark" aria-hidden="true"></span>
+          <span id="selected-date"></span>
+          <span class="selected-count" id="selected-count"></span>
+        </div>
+        <p class="empty-state" id="empty-state" hidden>No completed case studies in this period yet. Every journey starts with one.</p>
+      </div>
+      <noscript><p>Enable JavaScript to explore daily case study activity.</p></noscript>
+    </section>
+
+    <p class="explanation">Each square represents a day. Brighter greens mean more completed cases.</p>
+    <footer><span>A beginner’s learning portfolio.</span><span>Recorded in Obsidian. Shared through practice.</span></footer>
+  </main>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+</body>
+</html>
