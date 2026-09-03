@@ -64,6 +64,57 @@ export function validateActivity(payload) {
   return payload.activity;
 }
 
+export function caseUrl(path) {
+  if (typeof path !== "string" || !path.startsWith("Case Study/")
+      || !/\.md$/i.test(path) || /[\\\x00-\x1f]/.test(path)
+      || path.split("/").some((part) => !part || part === "." || part === "..")) {
+    throw new Error("Invalid case file path.");
+  }
+  return `https://github.com/ZicoSabine/Medical-Coding-Journey/blob/main/${path.split("/").map(encodeURIComponent).join("/")}`;
+}
+
+export function caseTitle(path) {
+  return path.split("/").at(-1).replace(/\.md$/i, "");
+}
+
+export function validateCaseIndex(payload) {
+  const activity = validateActivity(payload);
+  const cases = payload.cases;
+  if (!cases || typeof cases !== "object" || Array.isArray(cases)) {
+    throw new Error("Invalid case references.");
+  }
+  const paths = new Set();
+  for (const [day, entries] of Object.entries(cases)) {
+    parseDay(day);
+    if (!Array.isArray(entries) || entries.length !== (activity[day] ?? 0)) {
+      throw new Error("Case references do not match the daily count.");
+    }
+    for (const entry of entries) {
+      if (!entry || !["simple", "intermediate", "complex"].includes(entry.difficulty)) {
+        throw new Error("Invalid case reference.");
+      }
+      caseUrl(entry.path);
+      if (paths.has(entry.path)) throw new Error("Duplicate case reference.");
+      paths.add(entry.path);
+    }
+  }
+  for (const [day, count] of Object.entries(activity)) {
+    if ((cases[day]?.length ?? 0) !== count) throw new Error("Missing case references.");
+  }
+  return cases;
+}
+
+export function dateFromHash(hash) {
+  const match = /^#day=(\d{4}-\d{2}-\d{2})$/.exec(hash);
+  if (!match) return null;
+  try {
+    parseDay(match[1]);
+    return match[1];
+  } catch {
+    return null;
+  }
+}
+
 export function buildCalendar(activity, today = todayKey()) {
   const end = parseDay(today);
   const anniversary = new Date(end);

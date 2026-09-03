@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from scripts.build_site import (
-    STATIC_FILES, ValidationError, aggregate, build_site, collect_cases, completion_date,
+    STATIC_FILES, ValidationError, aggregate, build_site, collect_cases, completion_date, case_index,
 )
 
 
@@ -161,7 +161,7 @@ class CaseActivityTests(unittest.TestCase):
             (source / name).write_text("static source", encoding="utf-8")
         (source / "private.md").write_text("never deploy this", encoding="utf-8")
 
-    def test_build_cleans_stale_output_and_exports_only_aggregate(self):
+    def test_build_cleans_stale_output_and_exports_counts_and_case_references(self):
         self.note()
         self.static_sources()
         output = self.root / "_site"
@@ -169,7 +169,10 @@ class CaseActivityTests(unittest.TestCase):
         (output / "stale.json").touch()
         self.assertEqual(build_site(self.root), {"2026-09-03": 1})
         payload = json.loads((output / "data/case_activity.json").read_text())
-        self.assertEqual(payload, {"activity": {"2026-09-03": 1}})
+        self.assertEqual(payload, {"activity": {"2026-09-03": 1}, "cases": {
+            "2026-09-03": [{"path": "Case Study/Simple/Case 001.md", "difficulty": "simple"}]
+        }})
+        self.assertNotIn("Case body remains private", json.dumps(payload))
         self.assertEqual({p.relative_to(output).as_posix() for p in output.rglob("*") if p.is_file()},
                          {*STATIC_FILES, ".nojekyll", "data/case_activity.json"})
 
@@ -192,6 +195,25 @@ class CaseActivityTests(unittest.TestCase):
     def test_empty_case_folder_builds_empty_activity(self):
         self.static_sources()
         self.assertEqual(build_site(self.root), {})
+
+    def test_case_references_are_grouped_sorted_and_exclude_unfinished_cases(self):
+        self.note("Complex/Z case.md", difficulty="complex")
+        self.note("Intermediate/A case.md", difficulty="intermediate", completed="2026-09-04")
+        self.note("Simple/B case.md")
+        self.note("draft.md", status="in-progress")
+        self.note("Templates/ignored.md")
+        cases = collect_cases(self.root)
+        index = case_index(cases)
+        self.assertEqual([entry["path"] for entry in index["2026-09-03"]], [
+            "Case Study/Complex/Z case.md", "Case Study/Simple/B case.md",
+        ])
+        self.assertEqual(index["2026-09-04"][0]["difficulty"], "intermediate")
+        self.assertEqual({day: len(entries) for day, entries in index.items()}, aggregate(cases))
+
+    def test_case_index_preserves_unicode_and_url_special_characters(self):
+        self.note("Simple/Case résumé #1 & review.md")
+        index = case_index(collect_cases(self.root))
+        self.assertEqual(index["2026-09-03"][0]["path"], "Case Study/Simple/Case résumé #1 & review.md")
 
 
 if __name__ == "__main__":

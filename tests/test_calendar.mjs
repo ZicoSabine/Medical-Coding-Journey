@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   buildCalendar, countLabel, dayKey, formatDay, levelFor, levelLabel,
   navigationIndex, parseDay, todayKey, validateActivity,
+  caseUrl, caseTitle, validateCaseIndex, dateFromHash,
 } from "../site/calendar.js";
 
 test("rolling year is aligned Monday–Sunday, includes today, and uses real dates", () => {
@@ -88,4 +89,34 @@ test("case descriptions use singular and plural", () => {
   assert.equal(countLabel(0), "0 cases completed");
   assert.equal(countLabel(1), "1 case completed");
   assert.equal(countLabel(7), "7 cases completed");
+});
+
+test("case file links preserve spaces, Unicode, hash signs and ampersands", () => {
+  const path = "Case Study/Simple/Case résumé #1 & review.md";
+  assert.equal(caseUrl(path), "https://github.com/ZicoSabine/Medical-Coding-Journey/blob/main/Case%20Study/Simple/Case%20r%C3%A9sum%C3%A9%20%231%20%26%20review.md");
+  assert.equal(caseTitle(path), "Case résumé #1 & review");
+  for (const invalid of ["../private.md", "Case Study/../private.md", "Case Study\\case.md", "https://example.com/case.md", "Case Study//case.md"]) {
+    assert.throws(() => caseUrl(invalid));
+  }
+});
+
+test("case index matches counts and rejects missing or duplicate references", () => {
+  const entry = { path: "Case Study/Simple/Case 001.md", difficulty: "simple" };
+  const payload = { activity: { "2026-09-03": 1 }, cases: { "2026-09-03": [entry] } };
+  assert.deepEqual(validateCaseIndex(payload), payload.cases);
+  assert.deepEqual(validateCaseIndex({ activity: {}, cases: {} }), {});
+  for (const invalid of [
+    { activity: payload.activity, cases: {} },
+    { activity: {}, cases: payload.cases },
+    { activity: { "2026-09-03": 2 }, cases: { "2026-09-03": [entry, entry] } },
+    { activity: payload.activity, cases: { "2026-09-03": [{ ...entry, difficulty: "easy" }] } },
+  ]) assert.throws(() => validateCaseIndex(invalid));
+});
+
+test("shareable day links accept valid dates and ignore malformed fragments", () => {
+  assert.equal(dateFromHash("#day=2026-09-03"), "2026-09-03");
+  assert.equal(dateFromHash("#day=2024-02-29"), "2024-02-29");
+  for (const hash of ["", "#day=2026-02-29", "#day=2026-9-3", "#day=<script>", "#other=2026-09-03"]) {
+    assert.equal(dateFromHash(hash), null);
+  }
 });

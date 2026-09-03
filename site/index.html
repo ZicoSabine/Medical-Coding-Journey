@@ -22,7 +22,7 @@
     <section class="introduction" aria-labelledby="page-title">
       <p class="eyebrow">STUDY · PRACTICE · REFLECT</p>
       <h1 id="page-title">Medical Coding Journey<span class="title-dot">.</span></h1>
-      <p class="description">Building understanding, one case at a time.</p>
+      <p class="description" id="tagline">Just keep coding, just keep coding ~</p>
       <p class="subjects">ICD-10-CM <span aria-hidden="true">/</span> CPT <span aria-hidden="true">/</span> HCPCS Level II</p>
     </section>
 
@@ -30,7 +30,7 @@
       <div class="panel-heading">
         <div>
           <h2 id="activity-title">Case Study Activity</h2>
-          <p class="panel-description">A year of completed case studies.</p>
+          <p class="panel-description" id="activity-subtitle">Each Square is a Day. The brighter the color, the more cases solved.</p>
         </div>
         <p class="date-range" id="date-range"></p>
       </div>
@@ -46,7 +46,7 @@
           </div>
         </div>
         <div class="graph-caption">
-          <p id="calendar-help">Select a day to explore. Use arrow keys to move.</p>
+          <p id="calendar-help">Select a day to find its cases. Use arrow keys to move.</p>
           <div class="legend" aria-label="Cases completed per day"><span>Less</span><div id="legend-levels" class="legend-levels"></div><span>More</span></div>
         </div>
         <div class="selected-day" id="selected-day" role="status" aria-live="polite" aria-atomic="true">
@@ -54,13 +54,16 @@
           <span id="selected-date"></span>
           <span class="selected-count" id="selected-count"></span>
         </div>
-        <p class="empty-state" id="empty-state" hidden>No completed case studies in this period yet. Every journey starts with one.</p>
+        <section class="case-results" aria-labelledby="case-list-title">
+          <h3 id="case-list-title">Completed cases</h3>
+          <ul class="case-list" id="case-list"></ul>
+          <p class="empty-state" id="empty-state">No completed cases on this day.</p>
+        </section>
       </div>
       <noscript><p>Enable JavaScript to explore daily case study activity.</p></noscript>
     </section>
 
-    <p class="explanation">Each square represents a day. Brighter greens mean more completed cases.</p>
-    <footer><span>A beginner’s learning portfolio.</span><span>Recorded in Obsidian. Shared through practice.</span></footer>
+    <footer><span id="footer-left">One code at a time</span><span id="footer-right">Solved in Obsidian</span></footer>
   </main>
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </body>

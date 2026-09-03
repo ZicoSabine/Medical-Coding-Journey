@@ -12,7 +12,7 @@ Do not publish real patient-identifiable information, including:
 
 Combinations of seemingly ordinary case details can also identify someone. Review note bodies, Properties, filenames, attachments, and Git changes before publishing. Only share educational materials when their distribution is permitted.
 
-The dashboard publishes completion dates and daily counts. It does not publish case filenames, individual case metadata, or clinical text. **A public GitHub repository still exposes all committed files and their history**, even when the dashboard does not display them.
+The dashboard publishes completion dates, daily counts, and the filenames, repository paths, and difficulty levels of completed cases so readers can open them on GitHub. It does not copy clinical text into the dashboard. The README preview contains dates and counts. **A public GitHub repository exposes all committed files and their history**, including the case notes opened through those links.
 
 Automated tooling cannot guarantee that protected health information (PHI) has been removed. The repository owner must review content before publishing. Removing identifiers alone is not a claim that this project is HIPAA compliant.
 

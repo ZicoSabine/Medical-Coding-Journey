@@ -161,10 +161,23 @@ def aggregate(cases: list[Case]) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+def case_index(cases: list[Case]) -> dict[str, list[dict[str, str]]]:
+    """Expose only the file references needed to open completed cases on GitHub."""
+    result = {}
+    for case in sorted(cases, key=lambda item: item.path.casefold()):
+        if case.status == "completed" and case.date is not None:
+            result.setdefault(case.date.isoformat(), []).append({
+                "path": case.path,
+                "difficulty": case.difficulty,
+            })
+    return dict(sorted(result.items()))
+
+
 def build_site(root: Path = ROOT) -> dict[str, int]:
     root = root.resolve()
     # Validate first so a bad note cannot erase the last successful local preview.
-    activity = aggregate(collect_cases(root))
+    cases = collect_cases(root)
+    activity = aggregate(cases)
     source = root / "site"
     for name in STATIC_FILES:
         if not (source / name).is_file() or is_link(source / name):
@@ -180,7 +193,7 @@ def build_site(root: Path = ROOT) -> dict[str, int]:
         shutil.copyfile(source / name, output / name)
     (output / ".nojekyll").touch()
     (output / "data" / "case_activity.json").write_text(
-        json.dumps({"activity": activity}, indent=2) + "\n", encoding="utf-8"
+        json.dumps({"activity": activity, "cases": case_index(cases)}, indent=2) + "\n", encoding="utf-8"
     )
     return activity
 

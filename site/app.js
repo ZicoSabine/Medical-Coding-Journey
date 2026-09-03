@@ -1,6 +1,6 @@
 import {
   LEVEL_THRESHOLDS, buildCalendar, countLabel, formatDay, levelLabel,
-  navigationIndex, todayKey, validateActivity,
+  navigationIndex, todayKey, validateActivity, validateCaseIndex, caseUrl, caseTitle, dateFromHash,
 } from "./calendar.js";
 
 const byId = (id) => document.getElementById(id);
@@ -8,54 +8,87 @@ const tooltip = byId("tooltip");
 const grid = byId("heatmap");
 const scroller = byId("heatmap-scroll");
 let activity = null;
+let cases = {};
 let displayedToday = null;
-let buttons = [];
-let selectedButton = null;
+let dayLinks = [];
+let selectedLink = null;
 
 function hideTooltip() {
   tooltip.hidden = true;
 }
 
-function showTooltip(button) {
-  tooltip.textContent = `${formatDay(button.dataset.date)}\n${countLabel(Number(button.dataset.count))}`;
+function showTooltip(link) {
+  tooltip.textContent = `${formatDay(link.dataset.date)}\n${countLabel(Number(link.dataset.count))}`;
   tooltip.hidden = false;
-  const anchor = button.getBoundingClientRect();
+  const anchor = link.getBoundingClientRect();
   const box = tooltip.getBoundingClientRect();
   tooltip.style.left = `${Math.max(8, Math.min(window.innerWidth - box.width - 8, anchor.left + anchor.width / 2 - box.width / 2))}px`;
   tooltip.style.top = `${anchor.top > box.height + 16 ? anchor.top - box.height - 9 : anchor.bottom + 9}px`;
 }
 
-function selectDay(button) {
-  if (selectedButton) {
-    selectedButton.setAttribute("aria-pressed", "false");
-    selectedButton.tabIndex = -1;
+function selectDay(link) {
+  if (selectedLink) {
+    selectedLink.removeAttribute("aria-current");
+    selectedLink.tabIndex = -1;
   }
-  selectedButton = button;
-  button.tabIndex = 0;
-  button.setAttribute("aria-pressed", "true");
-  byId("selected-date").textContent = formatDay(button.dataset.date);
-  byId("selected-count").textContent = countLabel(Number(button.dataset.count));
+  selectedLink = link;
+  link.tabIndex = 0;
+  link.setAttribute("aria-current", "true");
+  byId("selected-date").textContent = formatDay(link.dataset.date);
+  byId("selected-count").textContent = countLabel(Number(link.dataset.count));
+  renderCases(link.dataset.date);
 }
 
-function dayButton(cell) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "day";
-  button.dataset.date = cell.key;
-  button.dataset.count = cell.count;
-  button.dataset.level = cell.level;
-  button.tabIndex = -1;
-  button.setAttribute("aria-label", `${formatDay(cell.key)}: ${countLabel(cell.count)}`);
-  button.setAttribute("aria-pressed", "false");
-  if (cell.key === displayedToday) button.setAttribute("aria-current", "date");
-  button.addEventListener("pointerenter", (event) => {
-    if (event.pointerType !== "touch") showTooltip(button);
+function renderCases(day) {
+  const entries = cases[day] ?? [];
+  const items = entries.map((entry) => {
+    const item = document.createElement("li");
+    const link = document.createElement("a");
+    link.className = "case-link";
+    link.href = caseUrl(entry.path);
+    link.setAttribute("aria-label", `${caseTitle(entry.path)} — ${entry.difficulty} case. Open on GitHub.`);
+    const name = document.createElement("span");
+    name.className = "case-name";
+    name.textContent = caseTitle(entry.path);
+    const difficulty = document.createElement("span");
+    difficulty.className = "case-difficulty";
+    difficulty.textContent = entry.difficulty;
+    const arrow = document.createElement("span");
+    arrow.className = "case-arrow";
+    arrow.textContent = "↗";
+    arrow.setAttribute("aria-hidden", "true");
+    link.append(name, difficulty, arrow);
+    item.append(link);
+    return item;
   });
-  button.addEventListener("pointerleave", hideTooltip);
-  button.addEventListener("focus", () => { selectDay(button); showTooltip(button); });
-  button.addEventListener("blur", hideTooltip);
-  button.addEventListener("click", () => { selectDay(button); showTooltip(button); });
-  return button;
+  byId("case-list").replaceChildren(...items);
+  byId("empty-state").hidden = entries.length > 0;
+}
+
+function dayLink(cell) {
+  const link = document.createElement("a");
+  link.href = `#day=${cell.key}`;
+  link.className = "day";
+  link.dataset.date = cell.key;
+  link.dataset.count = cell.count;
+  link.dataset.level = cell.level;
+  link.tabIndex = -1;
+  link.setAttribute("aria-label", `${formatDay(cell.key)}: ${countLabel(cell.count)}. View cases.`);
+  if (cell.key === displayedToday) link.dataset.today = "true";
+  link.addEventListener("pointerenter", (event) => {
+    if (event.pointerType !== "touch") showTooltip(link);
+  });
+  link.addEventListener("pointerleave", hideTooltip);
+  link.addEventListener("focus", () => { selectDay(link); showTooltip(link); });
+  link.addEventListener("blur", hideTooltip);
+  link.addEventListener("click", (event) => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    selectDay(link);
+    showTooltip(link);
+    if (window.location.hash !== link.hash) window.history.pushState(null, "", link.hash);
+  });
+  return link;
 }
 
 function renderCalendar() {
@@ -64,11 +97,11 @@ function renderCalendar() {
   byId("heatmap-layout").style.setProperty("--weeks", calendar.weeks);
   byId("date-range").textContent = `${formatDay(calendar.start, { month: "short", day: "numeric", year: "numeric" })} — ${formatDay(calendar.end, { month: "short", day: "numeric", year: "numeric" })}`;
   const fragment = document.createDocumentFragment();
-  buttons = [];
-  selectedButton = null;
+  dayLinks = [];
+  selectedLink = null;
   for (const cell of calendar.cells) {
-    const element = cell.inRange ? dayButton(cell) : document.createElement("span");
-    if (cell.inRange) buttons.push(element);
+    const element = cell.inRange ? dayLink(cell) : document.createElement("span");
+    if (cell.inRange) dayLinks.push(element);
     else { element.className = "padding-day"; element.setAttribute("aria-hidden", "true"); }
     element.style.gridColumn = cell.column + 1;
     element.style.gridRow = cell.row + 1;
@@ -81,27 +114,38 @@ function renderCalendar() {
     label.style.gridColumn = month.column + 1;
     return label;
   }));
-  byId("empty-state").hidden = calendar.cells.some((cell) => cell.inRange && cell.count > 0);
-  selectDay(buttons.at(-1));
+  const linkedDate = dateFromHash(window.location.hash);
+  selectDay(dayLinks.find((link) => link.dataset.date === linkedDate) ?? dayLinks.at(-1));
   byId("activity-content").hidden = false;
   // Start smaller screens at the most recent week, keeping all previous days scrollable.
   scroller.scrollLeft = scroller.scrollWidth;
+  if (linkedDate) selectedLink.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 
 grid.addEventListener("keydown", (event) => {
-  const index = buttons.indexOf(event.target);
+  const index = dayLinks.indexOf(event.target);
   if (index < 0) return;
   if (event.key === "Escape") { hideTooltip(); return; }
-  const next = navigationIndex(index, event.key, buttons.map((button) => button.dataset.date), event.ctrlKey || event.metaKey);
+  if (event.key === " ") { event.preventDefault(); event.target.click(); return; }
+  const next = navigationIndex(index, event.key, dayLinks.map((link) => link.dataset.date), event.ctrlKey || event.metaKey);
   if (next === null) return;
   event.preventDefault();
-  buttons[next].focus({ preventScroll: true });
-  buttons[next].scrollIntoView({ block: "nearest", inline: "nearest" });
-  showTooltip(buttons[next]);
+  dayLinks[next].focus({ preventScroll: true });
+  dayLinks[next].scrollIntoView({ block: "nearest", inline: "nearest" });
+  showTooltip(dayLinks[next]);
 });
 scroller.addEventListener("scroll", hideTooltip);
 window.addEventListener("scroll", hideTooltip, { passive: true });
 window.addEventListener("resize", hideTooltip);
+window.addEventListener("hashchange", () => {
+  const linkedDate = dateFromHash(window.location.hash);
+  const target = dayLinks.find((link) => link.dataset.date === linkedDate) ?? dayLinks.at(-1);
+  if (target) {
+    selectDay(target);
+    target.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+  hideTooltip();
+});
 document.addEventListener("pointerdown", (event) => {
   if (!event.target.closest(".day")) hideTooltip();
 });
@@ -126,10 +170,16 @@ async function loadActivity() {
   try {
     const response = await fetch("./data/case_activity.json", { cache: "no-cache" });
     if (!response.ok) throw new Error("Activity request failed.");
-    activity = validateActivity(await response.json());
+    const payload = await response.json();
+    const nextActivity = validateActivity(payload);
+    const nextCases = validateCaseIndex(payload);
+    activity = nextActivity;
+    cases = nextCases;
     renderCalendar();
     state.hidden = true;
   } catch {
+    activity = null;
+    cases = {};
     byId("activity-content").hidden = true;
     state.textContent = "Case study activity could not be loaded. Please try again.";
     byId("retry").hidden = false;
