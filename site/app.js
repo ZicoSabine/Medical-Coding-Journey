@@ -168,7 +168,8 @@ async function loadActivity() {
   state.textContent = "Loading case study activity…";
   byId("retry").hidden = true;
   try {
-    const response = await fetch("./data/case_activity.json", { cache: "no-cache" });
+    const activityUrl = `./data/case_activity.json?v=${Date.now()}`;
+    const response = await fetch(activityUrl, { cache: "no-store" });
     if (!response.ok) throw new Error("Activity request failed.");
     const payload = await response.json();
     const nextActivity = validateActivity(payload);
