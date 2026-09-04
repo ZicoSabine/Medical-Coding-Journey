@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "next_case_number": 11,
+  "cases": [
+    {
+      "case_id": "CASE-0001",
+      "path": "Case Study/Simple/CASE-0001.md",
+      "generated_date": "2026-09-03",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Primary care",
+      "specialty": "general",
+      "patient_demographic": "34-year-old female",
+      "presentation": "dysuria and urinary frequency",
+      "diagnoses": ["acute uncomplicated cystitis"],
+      "procedures_or_services": ["urinalysis"]
+    },
+    {
+      "case_id": "CASE-0002",
+      "path": "Case Study/Simple/CASE-0002.md",
+      "generated_date": "2026-09-03",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Emergency department",
+      "specialty": "Orthopedics",
+      "patient_demographic": "27-year-old male",
+      "presentation": "sports-related left ankle inversion injury",
+      "diagnoses": ["left anterior talofibular ligament sprain"],
+      "procedures_or_services": ["ankle radiographs"]
+    },
+    {
+      "case_id": "CASE-0003",
+      "path": "Case Study/Simple/CASE-0003.md",
+      "generated_date": "2026-09-03",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Specialty clinics",
+      "specialty": "Dermatology",
+      "patient_demographic": "8-year-old female",
+      "presentation": "pruritic flexural rash",
+      "diagnoses": ["atopic dermatitis"],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0004",
+      "path": "Case Study/Simple/CASE-0004.md",
+      "generated_date": "2026-09-03",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Urgent care",
+      "specialty": "Infectious disease",
+      "patient_demographic": "52-year-old male",
+      "presentation": "painful unilateral thoracic vesicular rash",
+      "diagnoses": ["herpes zoster without complication"],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0005",
+      "path": "Case Study/Simple/CASE-0005.md",
+      "generated_date": "2026-09-03",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Physician / professional services",
+      "specialty": "Cardiology",
+      "patient_demographic": "68-year-old male",
+      "presentation": "palpitations with irregular pulse",
+      "diagnoses": ["atrial fibrillation"],
+      "procedures_or_services": ["electrocardiogram"]
+    },
+    {
+      "case_id": "CASE-0006",
+      "path": "Case Study/Simple/CASE-0006.md",
+      "generated_date": "2026-09-04",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Primary care",
+      "specialty": "Pediatrics",
+      "patient_demographic": "4-year-old male",
+      "presentation": "right ear pain and fever after a recent respiratory illness",
+      "diagnoses": ["acute suppurative otitis media of the right ear without spontaneous rupture"],
+      "procedures_or_services": ["otoscopic examination"]
+    },
+    {
+      "case_id": "CASE-0007",
+      "path": "Case Study/Simple/CASE-0007.md",
+      "generated_date": "2026-09-04",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Hospital outpatient",
+      "specialty": "Orthopedics",
+      "patient_demographic": "72-year-old female",
+      "presentation": "left wrist injury after a fall",
+      "diagnoses": ["closed extra-articular fracture of the distal left radius"],
+      "procedures_or_services": ["wrist radiographs", "removable wrist splint"]
+    },
+    {
+      "case_id": "CASE-0008",
+      "path": "Case Study/Simple/CASE-0008.md",
+      "generated_date": "2026-09-04",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Telehealth",
+      "specialty": "Pulmonology",
+      "patient_demographic": "19-year-old female",
+      "presentation": "wheezing and chest tightness after animal-dander exposure",
+      "diagnoses": ["mild intermittent asthma with acute exacerbation"],
+      "procedures_or_services": ["video evaluation"]
+    },
+    {
+      "case_id": "CASE-0009",
+      "path": "Case Study/Simple/CASE-0009.md",
+      "generated_date": "2026-09-04",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Specialty clinics",
+      "specialty": "Gastroenterology",
+      "patient_demographic": "45-year-old female",
+      "presentation": "post-meal heartburn and regurgitation without alarm symptoms",
+      "diagnoses": ["gastroesophageal reflux disease without esophagitis"],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0010",
+      "path": "Case Study/Simple/CASE-0010.md",
+      "generated_date": "2026-09-04",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Urgent care",
+      "specialty": "Ophthalmology",
+      "patient_demographic": "31-year-old male",
+      "presentation": "unilateral red eye with purulent discharge",
+      "diagnoses": ["acute bacterial conjunctivitis of the left eye"],
+      "procedures_or_services": []
+    }
+  ],
+  "legacy_files": [
+    "Case Study/Simple/CS - 1.md"
+  ]
+}

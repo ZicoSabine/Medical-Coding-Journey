@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "pending_request": {
+    "request_type": "daily",
+    "scheduled_date": "2026-09-04",
+    "status": "awaiting_difficulty",
+    "requested_case_count": 1
+  },
+  "daily_runs": {}
+}
