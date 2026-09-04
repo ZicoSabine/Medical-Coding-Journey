@@ -10,10 +10,10 @@ The preview updates with each successful deployment. Open the dashboard to selec
 
 ## Study in Obsidian, then push
 
-1. Open or create a note anywhere inside `Medical Coding/Case Study/`. Existing cases can stay where they are; the difficulty subfolders are optional.
-2. Use **Templates: Insert template** and choose Simple, Intermediate, or Complex from the existing shared `Templates/Case Study Templates/` folder in the School Notes vault.
-3. Work on the case. New templates start with `status: in-progress` and a blank `date`.
-4. When you actually finish, use Obsidian's **Properties** to set `status` to `completed` and `date` to the completion day.
+1. Open a generated case in its matching `Medical Coding/Case Study/{Simple,Intermediate,Complex}/` folder. For a manually created case, insert the matching shared template from `Templates/Case Study Templates/`.
+2. Generated cases start with `status: pending`; template-created cases start with `status: in-progress`. Both have a blank `date`.
+3. Work on the case and record your optional `time` and `Google Help` values.
+4. When you actually finish, use Obsidian's **Properties** to set `status` to `completed` and `date` to the completion day. Keep `generated_date` as the day the case was created.
 5. Review your changes, commit, and push from the **Medical Coding** folder. GitHub Actions tests, builds, and updates the dashboard automatically.
 
 The shared template location and the vault's `Templates` setting remain unchanged. Those three canonical template files are outside this Git repository and are excluded from scanning by location. Keep using them in Obsidian; no duplicate activity log is needed. A clone on another computer needs those templates copied separately or the Properties below added manually.
@@ -33,8 +33,12 @@ date: 2026-09-03
 | --- | --- |
 | `type` | `case-study` |
 | `difficulty` | `simple`, `intermediate`, `complex` |
-| `status` | `not-started`, `in-progress`, `completed` |
+| `status` | `pending`, `not-started`, `in-progress`, `completed` |
 | `date` | Actual completion date, `YYYY-MM-DD`; blank until completed |
+| `generated_date` | Date the generated case was created; it does not determine dashboard activity |
+| `case_id` | Stable generated identifier such as `CASE-0001` |
+| `coding_area`, `specialty` | Descriptive generator metadata |
+| `time`, `Google Help` | Optional learner-entered practice metrics |
 
 If Obsidian shows `date` as text, choose **Date** as its property type once. `type`, `difficulty`, and `status` are text Properties. Keep existing unrelated Properties such as `cssclasses`.
 
@@ -54,7 +58,7 @@ Only stage content you intend to publish. The School Notes vault contains other 
 
 **One completed Markdown case file = one case.** The scanner counts a note only when `type: case-study`, `status: completed`, and a valid completion `date` are present. Counts are grouped by that date. Supported difficulty and status values are validated.
 
-The heatmap is calculated from `status` and `date`. **Git commit dates, push dates, creation times, and modification times are never used as study dates.** In-progress and not-started cases do not count, even if they have a date. A completed case with a blank or invalid date fails the build with its path and the property to fix. Fix the note and push again; the previous successful deployment remains available.
+The heatmap is calculated from `status` and `date`. **Git commit dates, push dates, creation times, and modification times are never used as study dates.** Pending, in-progress, and not-started cases do not count, even if they have a date. A completed case with a blank or invalid date fails the build with its path and the property to fix. Fix the note and push again; the previous successful deployment remains available.
 
 Only `Case Study/` is scanned recursively. Template directories and filenames with a separate `Template` or `Templates` word are excluded, including `Case Study/Templates/` if one is added later. The shared `Templates/Case Study Templates/` directory, other note categories, hidden directories, and generated output are outside the scan. Symlinks and junctions are not followed. Notes without case Properties are ignored.
 
@@ -76,8 +80,11 @@ GitHub displays the README preview as an image linked to the interactive dashboa
 
 ```text
 Medical Coding/
+├── .case-generator/
+│   ├── case_registry.json
+│   ├── generator_instructions.md
+│   └── state.json
 ├── Case Study/
-│   ├── CS - 1.md
 │   ├── Simple/
 │   ├── Intermediate/
 │   └── Complex/

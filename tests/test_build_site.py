@@ -38,6 +38,10 @@ class CaseActivityTests(unittest.TestCase):
         self.note(status="in-progress")
         self.assertEqual(self.activity(), {})
 
+    def test_pending_blank_date_ignored(self):
+        self.note(status="pending", completed="")
+        self.assertEqual(self.activity(), {})
+
     def test_not_started_blank_date_ignored(self):
         self.note(status="not-started", completed="")
         self.assertEqual(self.activity(), {})
@@ -72,7 +76,7 @@ class CaseActivityTests(unittest.TestCase):
         self.assertEqual(self.activity(), {})
 
     def test_completed_missing_date_fails_with_path_and_property(self):
-        self.note(completed="")
+        self.note(completed="", extra="generated_date: 2026-09-03\n")
         with self.assertRaisesRegex(ValidationError, r"Simple/Case 001.md: date:.*YYYY-MM-DD"):
             self.activity()
 

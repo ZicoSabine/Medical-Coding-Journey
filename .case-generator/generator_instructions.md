@@ -24,13 +24,15 @@ Use general clinical knowledge. Do not copy or reverse-engineer proprietary refe
 - Assign the next unused sequential ID in the form `CASE-0001`, `CASE-0002`, and so on. Never reuse an ID.
 - Save each case in its own file named only `CASE-####.md`.
 - Use the next number in `case_registry.json`, while also checking the filesystem for collisions. If a target exists, advance to the next free number.
-- New cases always have `status: pending`, an empty `date:`, an empty `time:`, an empty `Google Help:`, and a `generated_date` matching the generation date.
+- New cases always have `type: case-study`, `status: pending`, an empty `date:`, an empty `time:`, an empty `Google Help:`, and a `generated_date` matching the generation date.
 - `time` records the learner's time spent on the case. `Google Help` records the learner's Google-help count. The generator must leave both empty and must never overwrite learner-entered values.
+- When the learner completes a case, set `status: completed` and `date:` to the actual completion date in `YYYY-MM-DD` format. Preserve `generated_date`; the dashboard counts `date`, not `generated_date`.
 
 Use this frontmatter unless a compatible template requirement adds a non-conflicting property:
 
 ```yaml
 ---
+type: case-study
 case_id: CASE-####
 difficulty: simple | intermediate | complex
 coding_area: "selected coding area"

@@ -17,7 +17,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CASE_DIRECTORY = "Case Study"
-STATUSES = {"not-started", "in-progress", "completed"}
+STATUSES = {"pending", "not-started", "in-progress", "completed"}
 DIFFICULTIES = {"simple", "intermediate", "complex"}
 DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
 TEMPLATE_PATTERN = re.compile(r"(?:^|[\s_-])templates?(?:$|[\s_-])", re.IGNORECASE)
@@ -130,7 +130,7 @@ def parse_case(path: Path, root: Path) -> Case | None:
     status = properties.get("status")
     difficulty = properties.get("difficulty")
     if not isinstance(status, str) or status not in STATUSES:
-        raise ValidationError("status: expected not-started, in-progress, or completed")
+        raise ValidationError("status: expected pending, not-started, in-progress, or completed")
     if not isinstance(difficulty, str) or difficulty not in DIFFICULTIES:
         raise ValidationError("difficulty: expected simple, intermediate, or complex")
     completed_on = completion_date(properties.get("date"))
