@@ -1,0 +1,18 @@
+name = "medical-coding-journey"
+main = "worker/index.mjs"
+compatibility_date = "2026-09-01"
+
+[assets]
+directory = "site"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "medical-coding-journey"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+[vars]
+STUDY_TIME_ZONE = "Asia/Dubai"
+# Set ALLOWED_EMAIL in Cloudflare, not here, before production use.

@@ -8,12 +8,34 @@ A beginner medical coding learning portfolio documenting study notes, case studi
 
 The preview updates with each successful deployment. Open the dashboard to select a day and follow links to its completed cases.
 
+## Local practice application
+
+The private study workflow runs only on your computer and reads the existing Obsidian folders directly. It does not upload case bodies, answer keys, verification history, or corrections.
+
+Node.js 22.7 or newer is the only runtime needed. From the **Medical Coding** folder, run:
+
+```powershell
+node scripts/practice_server.mjs
+```
+
+Then open [http://127.0.0.1:8000](http://127.0.0.1:8000). The app provides the completion dashboard, a persistent per-case stopwatch and average solve time, difficulty selection, random pending-case selection, progressive clues, server-side answer reveal, independent user/system verification, corrections, cancellation, and guarded case completion. Cancelling discards the active session while leaving its case pending; cancelled attempts are not included in the average.
+
+Private answer keys live in separate difficulty files under `.case-generator/answer_keys/`, such as `simple.json` and `intermediate.json`. Each file contains answers for one difficulty only. These files, active sessions, generation requests, and `.case-generator/results/` are ignored by Git. The legacy `.case-generator/answer_registry.json` remains a fallback for older installations. Never commit private answer keys.
+
+Completing a resolved case writes its study result, preserves answer corrections with an audit trail, changes the note to `status: completed` with the actual local date, moves it to `Case Study/Archive/<Difficulty>/`, updates the case registry, and refreshes the dashboard. Closing an unresolved case leaves the original note pending.
+
+When the repository is clean, synchronized, and on `main`, the completion screen also offers **Commit and push this completion**. This opt-in step stages only the original case path, its archived path, and `.case-generator/case_registry.json`; it commits them as `Complete CASE-####` and pushes `main` to `origin`, which triggers the dashboard deployment workflow. Private answer and result files remain ignored and are never staged. Configure a Git name, email, origin remote, upstream branch, and GitHub authentication before using it.
+
+Publishing is deliberately disabled while other repository changes are present. Commit the application setup as a baseline first so a later completion cannot accidentally include unrelated notes or source changes. If committing or pushing fails, the clinical case stays completed and archived locally. A failed push can be retried from the result dialog without repeating completion.
+
+The **Request More Cases** action queues a local request in `.case-generator/generation_requests.json`. The durable generator instructions consume that queue; the app never pretends that generation succeeded before the generator runs.
+
 ## Study in Obsidian, then push
 
 1. Open a generated case in its matching `Medical Coding/Case Study/{Simple,Intermediate,Complex}/` folder. For a manually created case, insert the matching shared template from `Templates/Case Study Templates/`.
 2. Generated cases start with `status: pending`; template-created cases start with `status: in-progress`. Both have a blank `date`.
 3. Work on the case and record your optional `time` and `Google Help` values.
-4. When you actually finish, use Obsidian's **Properties** to set `status` to `completed` and `date` to the completion day. Keep `generated_date` as the day the case was created.
+4. Prefer completing the case through the local practice app so verification history and answer corrections are preserved. For a manual completion, use Obsidian's **Properties** to set `status` to `completed` and `date` to the completion day. Keep `generated_date` as the day the case was created.
 5. Review your changes, commit, and push from the **Medical Coding** folder. GitHub Actions tests, builds, and updates the dashboard automatically.
 
 The shared template location and the vault's `Templates` setting remain unchanged. Those three canonical template files are outside this Git repository and are excluded from scanning by location. Keep using them in Obsidian; no duplicate activity log is needed. A clone on another computer needs those templates copied separately or the Properties below added manually.
@@ -66,13 +88,13 @@ There is no invented activity. No completed notes means an empty heatmap. Do not
 
 ## Dashboard
 
-The burgundy and parchment dashboard shows a rolling calendar year ending on the viewer's local today (365 or 366 days), in Monday–Sunday rows and about 53 week columns. Calendar calculations and formatting preserve date-only values without timezone shifts. Activity outside the visible year remains in the aggregate data; future padding is inactive and never shows activity.
+The GitHub-inspired light/dark dashboard shows a rolling calendar year ending on the viewer's local today (365 or 366 days), in Monday–Sunday rows and about 53 week columns. Calendar calculations and formatting preserve date-only values without timezone shifts. Activity outside the visible year remains in the aggregate data; future padding is inactive and never shows activity.
 
 Hover, focus, or select a square for its date and count. Selecting a day lists all cases completed that day, with links to their Markdown files on GitHub. The URL gains a shareable fragment such as `#day=2026-09-03`; opening that link selects the same day. Days without completed cases show an empty message.
 
 On mobile, tap a square and scroll the calendar horizontally. Tab enters the calendar at the selected day; arrow keys move by day vertically and week horizontally. Home/End move within the week, Ctrl+Home/End jump to the range edges, and Escape dismisses the tooltip. Enter or Space activates the date link. Tab then reaches the completed case links below the graph.
 
-The fixed intensity scale is **0 / 1 / 2–3 / 4–5 / 6–9 / 10+ cases per day**. Edit `LEVEL_THRESHOLDS` in `site/calendar.js` to change it; the legend and README preview use the same thresholds. Colors are `--level-0` through `--level-5` in `site/styles.css`. `#bc8034` is the brightest level; lower levels use darker values of the same gold hue.
+The fixed intensity scale is **0 / 1 / 2–3 / 4–5 / 6–9 / 10+ cases per day**. Edit `LEVEL_THRESHOLDS` in `site/calendar.js` to change it; the legend and README preview use the same thresholds. Colors are `--level-0` through `--level-5` in `site/styles.css`, with separate light and dark surface tokens.
 
 GitHub displays the README preview as an image linked to the interactive dashboard. `scripts/build_preview.mjs` regenerates `_site/preview.svg` during deployment from real activity, the shared calendar logic, dashboard copy, and CSS colors. The image's rolling range ends on the build's UTC date. No generated image or JSON needs to be committed or maintained manually. GitHub may briefly cache a previous image after deployment.
 
@@ -81,13 +103,19 @@ GitHub displays the README preview as an image linked to the interactive dashboa
 ```text
 Medical Coding/
 ├── .case-generator/
+│   ├── answer_registry.example.json
+│   ├── answer_registry.json        # local and ignored
 │   ├── case_registry.json
 │   ├── generator_instructions.md
+│   ├── generation_requests.json    # local and ignored
+│   ├── practice_session.json       # local and ignored
+│   ├── results/                    # local and ignored
 │   └── state.json
 ├── Case Study/
 │   ├── Simple/
 │   ├── Intermediate/
-│   └── Complex/
+│   ├── Complex/
+│   └── Archive/{Simple,Intermediate,Complex}/
 ├── CPT/
 ├── HCPCS II/
 ├── ICD/
@@ -100,10 +128,14 @@ Medical Coding/
 │   └── calendar.js
 ├── scripts/
 │   ├── build_site.py
-│   └── build_preview.mjs
+│   ├── build_preview.mjs
+│   ├── practice_core.mjs
+│   └── practice_server.mjs
 ├── tests/
 │   ├── test_build_site.py
 │   ├── test_calendar.mjs
+│   ├── test_practice_core.mjs
+│   ├── test_practice_server.mjs
 │   └── test_preview.mjs
 ├── .github/workflows/pages.yml
 ├── .gitignore
@@ -114,7 +146,17 @@ Medical Coding/
 
 The existing shared templates stay at the sibling path `../Templates/Case Study Templates/{Simple,Intermediate,Complex}.md`. The School Notes `.obsidian/` settings and CSS snippets stay outside this repository. Empty learning folders use `.gitkeep` files so Git preserves them.
 
-## Local build and preview
+## Local checks and public-dashboard build
+
+### Laptop and iPhone PWA
+
+The private application shell is installable as a Progressive Web App. From a laptop, run `npm start`, open `http://127.0.0.1:8000`, and use the browser's install command. On iPhone, open the deployed private Worker URL in Safari, choose **Share → Add to Home Screen**, and launch it from the new icon. The app caches only the shell and safe offline drafts; answer reveal, verification, and completion remain network-only.
+
+Cloud deployment uses `wrangler.toml`, `worker/index.mjs`, and `migrations/0001_initial.sql`. Create a D1 database, place its ID in `wrangler.toml` locally (never commit credentials), apply migrations with `npx wrangler d1 migrations apply medical-coding-journey --remote`, then import cases with `npm run sync:cloud`. Configure Cloudflare Access for the private Worker and set the `ALLOWED_EMAIL` and `SYNC_TOKEN` secrets. The public GitHub Pages dashboard remains a separate, answer-safe deployment.
+
+Cloudflare's current Workers Free allowance is 100,000 requests/day and 10 ms CPU/request; D1 Free includes 5 million rows read/day, 100,000 rows written/day, and 5 GB storage. These limits are suitable for a single-user study workflow but should be monitored in the Cloudflare dashboard.
+
+`npm run sync:obsidian` is intentionally a guarded placeholder until a D1 account and reconciliation credential are configured; it must not mutate the vault based on an unverified response. `npm run sync:corrections` creates the ignored local audit-export location.
 
 Install Python **3.12 or newer**. From this repository:
 
@@ -145,12 +187,14 @@ python -m http.server 8000 --directory _site
 
 Open [the local preview](http://localhost:8000). If PowerShell blocks activation, use `.venv\Scripts\python.exe` in place of `python`; activation is optional. Rebuild and refresh after note or site changes. Avoid opening `index.html` directly as a file because the page fetches its JSON over HTTP.
 
-For local JavaScript checks and the README preview, install Node.js **22.7 or newer** (CI uses 24):
+For local JavaScript checks, the private practice workflow, and the README preview, install Node.js **22.7 or newer** (CI uses 24):
 
 ```sh
-node --test tests/test_calendar.mjs tests/test_preview.mjs
+node --test tests/test_calendar.mjs tests/test_preview.mjs tests/test_practice_core.mjs tests/test_practice_server.mjs
 node --check site/app.js
 node --check site/calendar.js
+node --check scripts/practice_core.mjs
+node --check scripts/practice_server.mjs
 node scripts/build_preview.mjs
 ```
 

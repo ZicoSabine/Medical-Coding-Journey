@@ -3,68 +3,208 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <meta name="description" content="A medical coding learning journey, documented through case studies and daily practice.">
-  <title>Medical Coding Journey · Case Study Activity</title>
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="A local-first medical coding practice dashboard connected to Obsidian.">
+  <title>Medical Coding Journey</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg">
+  <meta name="theme-color" content="#0d1117">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
-  <main class="page">
-    <header class="masthead">
-      <a class="identity" href="./" aria-label="Medical Coding Journey home">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>THE LEARNING LOG</span>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#home" aria-label="Medical Coding Journey home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>
+          <strong>Medical Coding Journey</strong>
+          <small id="github-username">@ZicoSabine</small>
+        </span>
       </a>
-      <a class="repository-link" href="https://github.com/ZicoSabine/Medical-Coding-Journey">View on GitHub <span aria-hidden="true">↗</span></a>
+      <div class="topbar-actions">
+        <span class="local-badge" id="connection-badge"><span aria-hidden="true"></span> Local workspace</span>
+        <button class="icon-button" id="theme-toggle" type="button" aria-label="Change color theme" title="Change color theme">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M20.5 15.6A8.5 8.5 0 0 1 8.4 3.5 8.5 8.5 0 1 0 20.5 15.6Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </header>
 
-    <section class="introduction" aria-labelledby="page-title">
-      <p class="eyebrow">STUDY · PRACTICE · REFLECT</p>
-      <h1 id="page-title">Medical Coding Journey<span class="title-dot">.</span></h1>
-      <p class="description" id="tagline">Just keep coding, just keep coding ~</p>
-      <p class="subjects">ICD-10-CM <span aria-hidden="true">/</span> CPT <span aria-hidden="true">/</span> HCPCS Level II</p>
-    </section>
+    <main class="workspace">
+      <div class="global-alert" id="global-alert" role="alert" hidden></div>
 
-    <section class="activity-panel" aria-labelledby="activity-title" aria-busy="true">
-      <div class="panel-heading">
-        <div>
-          <h2 id="activity-title">Case Study Activity</h2>
-          <p class="panel-description" id="activity-subtitle">Each Square is a Day. The brighter the color, the more cases solved.</p>
-        </div>
-        <p class="date-range" id="date-range"></p>
-      </div>
-
-      <p id="load-state" role="status">Loading case study activity…</p>
-      <button class="retry" id="retry" type="button" hidden>Try again</button>
-      <div id="activity-content" hidden>
-        <div class="heatmap-scroll" id="heatmap-scroll" role="region" aria-label="Case study activity calendar" aria-describedby="calendar-help">
-          <div class="heatmap-layout" id="heatmap-layout">
-            <div class="month-labels" id="month-labels" aria-hidden="true"></div>
-            <div class="weekday-labels" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
-            <div class="heatmap" id="heatmap" role="group" aria-label="Daily completed cases, Monday through Sunday"></div>
+      <section class="view view-home is-active" id="home-view" aria-labelledby="dashboard-title">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">STUDY DASHBOARD</p>
+            <h1 id="dashboard-title">Your coding practice</h1>
           </div>
+          <p class="heading-note">Completion activity is read from your Obsidian case metadata.</p>
         </div>
-        <div class="graph-caption">
-          <p id="calendar-help">Select a day to find its cases. Use arrow keys to move.</p>
-          <div class="legend" aria-label="Cases completed per day"><span>Less</span><div id="legend-levels" class="legend-levels"></div><span>More</span></div>
-        </div>
-        <div class="selected-day" id="selected-day" role="status" aria-live="polite" aria-atomic="true">
-          <span class="selection-mark" aria-hidden="true"></span>
-          <span id="selected-date"></span>
-          <span class="selected-count" id="selected-count"></span>
-        </div>
-        <section class="case-results" aria-labelledby="case-list-title">
-          <h3 id="case-list-title">Completed cases</h3>
-          <ul class="case-list" id="case-list"></ul>
-          <p class="empty-state" id="empty-state">No completed cases on this day.</p>
-        </section>
-      </div>
-      <noscript><p>Enable JavaScript to explore daily case study activity.</p></noscript>
-    </section>
 
-    <footer><span id="footer-left">One code at a time</span><span id="footer-right">Solved in Obsidian</span></footer>
-  </main>
+        <section class="stats-grid" aria-label="Study summary">
+          <article class="stat-card"><span>Total completed</span><strong id="stat-total">—</strong></article>
+          <article class="stat-card"><span>Pending cases</span><strong id="stat-pending">—</strong></article>
+          <article class="stat-card"><span>Current streak</span><strong id="stat-streak">—</strong><small>days</small></article>
+          <article class="stat-card"><span>Cases this week</span><strong id="stat-week">—</strong></article>
+          <article class="stat-card"><span>Average solve time</span><strong id="stat-average">—</strong><small id="stat-average-note">timed cases</small></article>
+        </section>
+
+        <section class="activity-panel" aria-labelledby="activity-title" aria-busy="true">
+          <div class="panel-heading">
+            <div>
+              <h2 id="activity-title">Case completion activity</h2>
+              <p class="panel-description" id="activity-subtitle">Each square is a day. Stronger color means more completed cases.</p>
+            </div>
+            <p class="date-range" id="date-range"></p>
+          </div>
+
+          <p id="load-state" role="status">Loading case activity…</p>
+          <button class="button button-secondary button-small" id="retry" type="button" hidden>Try again</button>
+          <div id="activity-content" hidden>
+            <div class="heatmap-scroll" id="heatmap-scroll" role="region" aria-label="Case study activity calendar" aria-describedby="calendar-help" tabindex="0">
+              <div class="heatmap-layout" id="heatmap-layout">
+                <div class="month-labels" id="month-labels" aria-hidden="true"></div>
+                <div class="weekday-labels" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+                <div class="heatmap" id="heatmap" role="group" aria-label="Daily completed cases, Monday through Sunday"></div>
+              </div>
+            </div>
+            <div class="graph-caption">
+              <p id="calendar-help">Select a day to review its cases. Use arrow keys to move.</p>
+              <div class="legend" aria-label="Cases completed per day"><span>Less</span><div id="legend-levels" class="legend-levels"></div><span>More</span></div>
+            </div>
+            <div class="selected-day" id="selected-day" role="status" aria-live="polite" aria-atomic="true">
+              <span class="selection-mark" aria-hidden="true"></span>
+              <span id="selected-date"></span>
+              <span class="selected-count" id="selected-count"></span>
+            </div>
+            <section class="case-results" aria-labelledby="case-list-title">
+              <h3 id="case-list-title">Completed cases</h3>
+              <ul class="case-list" id="case-list"></ul>
+              <p class="empty-state" id="empty-state">No completed cases on this day.</p>
+            </section>
+          </div>
+        </section>
+
+        <section class="practice-panel" aria-labelledby="practice-title">
+          <div class="practice-copy">
+            <span class="practice-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="23" height="23" fill="none"><path d="M5 3h11a3 3 0 0 1 3 3v15l-7-3-7 3V3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 8h7M8.5 11.5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </span>
+            <div><h2 id="practice-title">Daily practice</h2><p>Open a pending case, submit your codes, and verify the result before archiving.</p></div>
+          </div>
+          <button class="button button-primary" id="present-case" type="button">Present Daily Case</button>
+        </section>
+      </section>
+
+      <section class="view view-case" id="case-view" aria-labelledby="case-title" hidden>
+        <div class="case-toolbar">
+          <button class="back-button" id="close-case" type="button"><span aria-hidden="true">←</span> Dashboard</button>
+          <div class="stopwatch" aria-label="Elapsed solving time"><span aria-hidden="true">◷</span><strong id="case-stopwatch">00:00</strong></div>
+          <button class="button button-danger button-small" id="cancel-case" type="button">Cancel Case</button>
+        </div>
+        <article class="case-card">
+          <header class="case-header">
+            <div><p class="eyebrow" id="case-path-label">CASE STUDY</p><h1 id="case-title">Case</h1></div>
+            <span class="difficulty-badge" id="case-difficulty"></span>
+          </header>
+          <div class="case-meta" id="case-meta"></div>
+          <div class="clinical-document markdown-body" id="case-document"></div>
+        </article>
+
+        <section class="answers-card" aria-labelledby="answers-title">
+          <div class="section-heading"><div><p class="eyebrow">SUBMISSION</p><h2 id="answers-title">Your answers</h2></div><span class="answer-status" id="answer-status">Not checked</span></div>
+          <form id="answer-form" novalidate>
+            <div id="answer-groups"></div>
+            <div class="form-message" id="answer-message" role="alert" hidden></div>
+            <div class="answer-actions">
+              <button class="button button-secondary" id="clue-button" type="button">Clue <span class="clue-count" id="clue-count">0</span></button>
+              <button class="button button-primary" id="check-button" type="submit">Check</button>
+            </div>
+          </form>
+          <div class="clue-panel" id="clue-panel" role="status" hidden></div>
+        </section>
+
+        <section class="verification-card" id="verification-card" aria-labelledby="verification-title" hidden>
+          <div class="section-heading"><div><p class="eyebrow">MANUAL REVIEW</p><h2 id="verification-title">Verify the Result</h2></div><span class="answer-status" id="verification-status">Needs review</span></div>
+          <p class="verification-intro">Automated matching is only a comparison. Confirm whether each answer is actually correct before completing the case.</p>
+          <div id="verification-groups"></div>
+          <div class="form-message" id="verification-message" role="alert" hidden></div>
+          <label class="publish-option" id="publish-option">
+            <input id="publish-checkbox" type="checkbox" disabled>
+            <span class="publish-check" aria-hidden="true">✓</span>
+            <span><strong>Commit and push this completion</strong><small id="publish-help">Commit the current application changes first to enable per-case publishing.</small></span>
+          </label>
+          <div class="completion-actions">
+            <button class="button button-primary" id="next-case" type="button" disabled>Next Case</button>
+            <button class="button button-secondary" id="return-home" type="button" disabled>Return Home</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer"><span id="footer-left">Local-first study workspace</span><span id="footer-right">Answers stay private until you check</span></footer>
+  </div>
+
+  <dialog class="dialog" id="difficulty-dialog" aria-labelledby="difficulty-title">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-header"><div><p class="eyebrow">DAILY PRACTICE</p><h2 id="difficulty-title">Select Difficulty</h2></div><button class="dialog-close" value="cancel" aria-label="Close difficulty selector">×</button></div>
+      <p class="dialog-copy">Choose the level for this case. Random selects one of the three levels for you.</p>
+      <div class="difficulty-options">
+        <button class="difficulty-option" type="button" data-difficulty="simple"><strong>Simple</strong><span>ICD-10 + CPT</span></button>
+        <button class="difficulty-option" type="button" data-difficulty="intermediate"><strong>Intermediate</strong><span>ICD-10 + CPT + HCPCS</span></button>
+        <button class="difficulty-option" type="button" data-difficulty="complex"><strong>Complex</strong><span>ICD-10 + CPT</span></button>
+        <button class="difficulty-option" type="button" data-difficulty="random"><strong>Random</strong><span>Choose for me</span></button>
+      </div>
+      <p class="form-message" id="difficulty-message" role="alert" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog-compact" id="check-dialog" aria-labelledby="check-dialog-title">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-symbol dialog-symbol-warning" aria-hidden="true">!</div>
+      <h2 id="check-dialog-title">Are you sure you want to check your answer?</h2>
+      <p class="dialog-copy">Checking will reveal the stored answer for this case. Your entries will be locked for review.</p>
+      <div class="dialog-actions"><button class="button button-secondary" value="cancel">Cancel</button><button class="button button-primary" id="confirm-check" value="confirm">Yes, Check Answer</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog-compact" id="cancel-dialog" aria-labelledby="cancel-dialog-title">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-symbol dialog-symbol-warning" aria-hidden="true">!</div>
+      <h2 id="cancel-dialog-title">Cancel this case?</h2>
+      <p class="dialog-copy">Your current answers and elapsed time will be discarded. The case will remain pending and can be selected again later.</p>
+      <div class="dialog-actions"><button class="button button-secondary" value="keep">Keep Solving</button><button class="button button-danger" id="confirm-cancel" value="cancel">Cancel Case</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog-compact" id="no-more-dialog" aria-labelledby="no-more-title">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-symbol" aria-hidden="true">✓</div>
+      <h2 id="no-more-title">You Got No More. I request more.</h2>
+      <p class="dialog-copy" id="no-more-copy">There are no pending cases at this difficulty.</p>
+      <div class="dialog-actions"><button class="button button-secondary" id="no-more-home" value="home">Return Home</button><button class="button button-primary" id="request-more" value="request">Request More Cases</button></div>
+      <p class="form-message" id="request-message" role="status" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog-compact" id="publication-dialog" aria-labelledby="publication-title">
+    <div class="dialog-card">
+      <div class="dialog-symbol" id="publication-symbol" aria-hidden="true">✓</div>
+      <h2 id="publication-title">Completion published</h2>
+      <p class="dialog-copy" id="publication-copy"></p>
+      <p class="publication-commit" id="publication-commit" hidden></p>
+      <div class="dialog-actions">
+        <button class="button button-secondary" id="publication-close" type="button">Continue</button>
+        <button class="button button-primary" id="publication-retry" type="button" hidden>Retry Push</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
 </body>
 </html>

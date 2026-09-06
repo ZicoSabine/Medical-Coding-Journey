@@ -10,7 +10,7 @@ test("README preview uses real activity, correct colors and links to dates", () 
   const svg = renderPreview({ "2026-09-03": 7, "2026-09-04": 99 }, styles, html, "2026-09-03");
   assert.equal((svg.match(/data-date=/g) ?? []).length, 365);
   assert.ok(svg.includes('href="https://zicosabine.github.io/Medical-Coding-Journey/#day=2026-09-03"'));
-  assert.match(svg, /data-date="2026-09-03" data-count="7" data-level="4"[^>]*fill="#9a692b"/);
+  assert.match(svg, /data-date="2026-09-03" data-count="7" data-level="4"[^>]*fill="#216e39"/);
   assert.ok(!svg.includes('data-date="2026-09-04"'));
   assert.ok(!svg.includes("99 cases"));
 });
@@ -19,9 +19,9 @@ test("empty preview contains no invented positive activity", () => {
   const svg = renderPreview({}, styles, html, "2026-09-03");
   assert.equal((svg.match(/data-count="0"/g) ?? []).length, 365);
   assert.ok(!/data-count="[1-9]/.test(svg));
-  assert.ok(svg.includes("Just keep coding, just keep coding ~"));
-  assert.ok(svg.includes("One code at a time"));
-  assert.ok(svg.includes("Solved in Obsidian"));
+  assert.ok(svg.includes("Your coding practice"));
+  assert.ok(svg.includes("Local-first study workspace"));
+  assert.ok(svg.includes("Answers stay private until you check"));
 });
 
 test("leap-day preview uses the same rolling calendar as the dashboard", () => {
@@ -31,7 +31,7 @@ test("leap-day preview uses the same rolling calendar as the dashboard", () => {
 });
 
 test("preview escapes HTML copy and fails clearly for a missing palette color", () => {
-  const customHtml = html.replace("Just keep coding, just keep coding ~", "Coding &amp; cases &lt;daily&gt;");
+  const customHtml = html.replace("Your coding practice", "Coding &amp; cases &lt;daily&gt;");
   const svg = renderPreview({}, styles, customHtml, "2026-09-03");
   assert.ok(svg.includes("Coding &amp; cases &lt;daily&gt;"));
   assert.ok(!svg.includes("&amp;amp;"));

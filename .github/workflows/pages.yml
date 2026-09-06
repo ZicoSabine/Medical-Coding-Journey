@@ -35,13 +35,15 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Test case-study counting and validation
         run: python -m unittest discover -s tests -v
-      - name: Test calendar dates and interactions
-        run: node --test tests/test_calendar.mjs tests/test_preview.mjs
+      - name: Test calendar and local practice workflows
+        run: node --test tests/test_calendar.mjs tests/test_preview.mjs tests/test_practice_core.mjs tests/test_practice_server.mjs
       - name: Check browser JavaScript syntax
         run: |
           node --check site/app.js
           node --check site/calendar.js
           node --check scripts/build_preview.mjs
+          node --check scripts/practice_core.mjs
+          node --check scripts/practice_server.mjs
       - name: Build static dashboard
         run: python scripts/build_site.py
       - name: Generate GitHub README preview

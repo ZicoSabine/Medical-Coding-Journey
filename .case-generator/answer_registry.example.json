@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "cases": {
+    "CASE-0000": {
+      "icd10": [
+        "replace-with-private-answer"
+      ],
+      "cpt": [
+        "replace-with-private-answer"
+      ],
+      "hcpcs": [
+        "replace-with-private-answer"
+      ],
+      "correction_history": []
+    }
+  }
+}

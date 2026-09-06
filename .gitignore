@@ -4,6 +4,13 @@ _site/
 __pycache__/
 *.py[cod]
 
+# Local practice data and private answer material (never publish these)
+.case-generator/answer_registry.json
+.case-generator/answer_keys/
+.case-generator/practice_session.json
+.case-generator/generation_requests.json
+.case-generator/results/
+
 # Ephemeral Obsidian state; keep useful settings and snippets trackable
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json

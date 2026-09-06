@@ -5,19 +5,45 @@ This file is the durable operating specification for scheduled and manual case g
 ## Locations and preservation
 
 - Treat the nearest ancestor containing `.obsidian` as the vault root.
-- Store generated notes under the existing `Medical Coding/Case Study/` hierarchy, with `Simple/`, `Intermediate/`, and `Complex/` subfolders.
-- Store generator state only under `Medical Coding/.case-generator/`.
-- Read the matching template in `Templates/Case Study Templates/` before generation. Preserve compatible clinical field conventions, but omit its answer-entry section because generated case bodies may not contain coding answers or hints.
+- Store new and active notes under the existing `Medical Coding/Case Study/` hierarchy, with `Simple/`, `Intermediate/`, and `Complex/` subfolders.
+- Store completed notes under `Medical Coding/Case Study/Archive/`, preserving the same `Simple/`, `Intermediate/`, and `Complex/` subfolder structure. Pending or in-progress notes must not be placed in the archive.
+- Store generator state, private answer keys, and practice-app generation requests only under `Medical Coding/.case-generator/`.
+- Read the matching template in `Templates/Case Study Templates/` before generation. Preserve compatible clinical field conventions, but omit its answer-entry block from generated case files.
 - Never delete or overwrite an existing case, learner answer, template, note, or unrelated file.
-- Before writing, inspect `state.json`, `case_registry.json`, recent generated cases, and relevant legacy cases.
+- Before writing, inspect `state.json`, `case_registry.json`, the matching file under `answer_keys/`, `generation_requests.json` when present, recent active and archived cases, and relevant legacy cases.
 
-## Absolute no-answer rule
+## Private answer rule
 
-Never provide diagnosis, procedure, supply, or service codes; partial codes; ranges; families; modifiers; suggested answers; answer keys; lookup terms; index or tabular directions; proprietary descriptors; or statements pointing out which coding system applies to a sentence. Do not place such information in filenames, frontmatter, headings, comments, metadata, footnotes, companion files, confirmations, or chat responses.
+Public case Markdown must never contain solution codes. Store canonical answers only in the matching ignored local file `.case-generator/answer_keys/<difficulty>.json`, keyed by `case_id`. Each answer-key file must contain cases from exactly one difficulty. Do not place codes, partial codes, ranges, families, modifiers, suggested answers, lookup terms, index or tabular directions, proprietary descriptors, or coding hints in filenames, frontmatter, clinical narrative, headings, comments, metadata, footnotes, or other public files.
+
+- `cpt` contains only CPT codes for procedures actually performed to establish the diagnosis. Do not separately code incidental examination elements. The only exception is a case explicitly focused on patient evaluation, management, or admission; in that situation, include an exact E/M or admission code only when the narrative documents every detail required to select it.
+- `icd10` contains only reportable diagnosis codes supported by the documentation.
+- `hcpcs` contains only HCPCS Level II codes for sufficiently documented supplies or services.
+- Include `icd10`, `cpt`, and `hcpcs` arrays for every case. Use an empty array when no supported code applies in a category; never substitute explanatory text such as `N/A`.
+- When exact code selection depends on details such as imaging views, technique, patient status, time, setting, quantity, or material, document those details naturally in the clinical record. Do not guess an exact code from incomplete documentation.
+- Verify answers against authoritative code-set information effective for the case's service date.
+
+Use this private structure:
+
+```json
+{
+  "version": 1,
+  "difficulty": "intermediate",
+  "cases": {
+    "CASE-0024": {
+      "icd10": ["private code"],
+      "cpt": ["private code"],
+      "hcpcs": []
+    }
+  }
+}
+```
+
+Never include private answer values in chat confirmations or generation summaries.
 
 Clinical terminology and realistic documentation are required. Do not visually emphasize details because they may matter to coding. Write laterality, anatomy, severity, technique, devices, quantities, route, setting, and encounter circumstances naturally without explaining their coding significance.
 
-Use general clinical knowledge. Do not copy or reverse-engineer proprietary reference descriptions, commercial textbooks, or uploaded coding books. External research is normally unnecessary. If a clinical term truly needs verification, prefer authoritative public sources.
+Use general clinical knowledge. Do not copy or reverse-engineer proprietary reference descriptions, commercial textbooks, or uploaded coding books. Prefer authoritative public sources when verifying code validity and effective dates.
 
 ## Identification and metadata
 
@@ -27,6 +53,7 @@ Use general clinical knowledge. Do not copy or reverse-engineer proprietary refe
 - New cases always have `type: case-study`, `status: pending`, an empty `date:`, an empty `time:`, an empty `Google Help:`, and a `generated_date` matching the generation date.
 - `time` records the learner's time spent on the case. `Google Help` records the learner's Google-help count. The generator must leave both empty and must never overwrite learner-entered values.
 - When the learner completes a case, set `status: completed` and `date:` to the actual completion date in `YYYY-MM-DD` format. Preserve `generated_date`; the dashboard counts `date`, not `generated_date`.
+- After completion metadata has been saved, move the note into the matching `Case Study/Archive/<Difficulty>/` folder and update its path in `case_registry.json`. Preserve the filename, case ID, clinical content, and learner-entered values. If the note is already archived, do not move or duplicate it.
 
 Use this frontmatter unless a compatible template requirement adds a non-conflicting property:
 
@@ -64,13 +91,17 @@ When the learner replies with one of those choices or an obvious equivalent, con
 
 Never reuse yesterday's choice. Never create two daily cases because a scheduled run restarted.
 
+## Practice-app generation queue
+
+The local practice app records **Request More Cases** actions in `.case-generator/generation_requests.json`. On a manual generator run, process pending requests in creation order. Each request provides a specific difficulty and count (normally 100). Generate exactly that amount using the normal manual workflow, then mark the request `completed` with a completion timestamp. If interrupted, preserve already generated cases, record progress on the request, and resume at the next unused case ID. Do not mark a request completed until every requested public case and private answer record has been saved.
+
 ## Manual requests
 
 - Manual generation is separate from the daily workflow and is allowed even when a daily case exists.
 - If the learner specifies a count, use it. If the learner asks for additional cases without a count, default to 100. An explicitly singular request means one case.
 - If difficulty is specified, use it. If mixed difficulty is requested, distribute cases across all three levels. If difficulty is omitted, ask `What difficulty should I use?` with only Simple, Intermediate, Complex, and Random, then stop.
 - If the immediately preceding interaction establishes difficulty unambiguously and the learner asks for another singular case, reuse that difficulty.
-- Honor requested constraints such as specialty, setting, age range, gender, body system, disease family, procedure type, diagnosis focus, procedure focus, supply-heavy documentation, pediatrics, geriatrics, trauma, inpatient only, outpatient only, surgery only, or no surgery when medically reasonable and consistent with the no-answer rule.
+- Honor requested constraints such as specialty, setting, age range, gender, body system, disease family, procedure type, diagnosis focus, procedure focus, supply-heavy documentation, pediatrics, geriatrics, trauma, inpatient only, outpatient only, surgery only, or no surgery when medically reasonable and consistent with the private answer rule.
 
 ## Coding areas and specialties
 
@@ -138,16 +169,16 @@ Use the same Patient, Gender, Age, and Case Report labels as Intermediate. Write
 
 ## Required ending
 
-Every case ends with exactly:
+Every public case ends with exactly:
 
 ## Your Task
 
 Using your current coding references, review the clinical documentation and determine the applicable coding based solely on the information provided.
 
-Do not add hints, explanations, references, answer fields, or other material after that sentence.
+Do not add answer fields, codes, hints, explanations, references, descriptors, or other material after that sentence. Save the corresponding answer in the private registry as part of the same generation operation.
 
 ## Save-time validation
 
-Before every save, silently verify that no code, partial code, range, modifier, lookup hint, answer, proprietary descriptor, or artificial clue emphasis appears anywhere; the filename and metadata reveal no answer; the clinical record is plausible; diagnosis, procedure, materials, setting, specialty, and difficulty align; required fields exist; the case differs sufficiently from recent cases; the ID is unique; existing files remain protected; status is pending; date, time, and Google Help are empty; and exactly the requested number of notes will be created.
+Before every save, silently verify that the public Markdown contains no code, partial code, range, modifier, lookup hint, answer, proprietary descriptor, or artificial clue emphasis; the private answer entry contains all three answer arrays; its answer-key file declares and contains only the case's difficulty; CPT answers follow the diagnostic-procedure rule and the E/M or admission exception; every exact private code is supported by the narrative and effective for the service date; the filename and metadata reveal no answer; the clinical record is plausible; diagnosis, procedure, materials, setting, specialty, and difficulty align; required fields exist; the case differs sufficiently from recent cases; the ID is unique; existing files remain protected; status is pending; date, time, and Google Help are empty; and exactly the requested number of notes will be created.
 
-After each successful case, append non-answer duplicate-detection metadata to `case_registry.json`, advance `next_case_number`, and update `state.json` atomically enough that an interrupted run can resume without overwriting a file.
+After each successful case, save its private answer record, append non-answer duplicate-detection metadata to `case_registry.json`, advance `next_case_number`, and update `state.json` atomically enough that an interrupted run can resume without overwriting a file. If any part fails, do not leave a public case without its private key or a key without its public case.

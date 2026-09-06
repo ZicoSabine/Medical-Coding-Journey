@@ -16,4 +16,6 @@ The dashboard publishes completion dates, daily counts, and the filenames, repos
 
 Automated tooling cannot guarantee that protected health information (PHI) has been removed. The repository owner must review content before publishing. Removing identifiers alone is not a claim that this project is HIPAA compliant.
 
+The local practice application binds only to `127.0.0.1` and keeps answer keys, active-session state, generation requests, correction history, and study results under the ignored `.case-generator/` paths documented in the README. Do not remove those ignore rules or commit those files. The public dashboard receives completion counts and case references only; it does not receive the private answer registry or local result records.
+
 This is a learning portfolio, not clinical advice or a substitute for current official coding guidance.
