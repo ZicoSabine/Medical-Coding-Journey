@@ -10,7 +10,7 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "medical-coding-journey"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "5cc6a6a5-9b86-4cb0-8520-71b22b3105c2"
 migrations_dir = "migrations"
 
 [vars]

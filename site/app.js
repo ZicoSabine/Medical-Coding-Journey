@@ -738,7 +738,7 @@ async function configureLocalMode() {
     localAvailable = config.local === true || config.cloud === true;
     publicationConfig = config.publication ?? publicationConfig;
     if (config.githubUsername) byId("github-username").textContent = `@${config.githubUsername}`;
-    badge.innerHTML = '<span aria-hidden="true"></span> Local workspace';
+    badge.innerHTML = `<span aria-hidden="true"></span> ${config.cloud ? "Private cloud" : "Local workspace"}`;
     badge.classList.remove("is-offline");
   } catch {
     localAvailable = false;

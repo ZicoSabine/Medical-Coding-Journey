@@ -1,10 +1,13 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { readFile, readdir } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseFrontmatter } from "./practice_core.mjs";
 
-const root = new URL("..", import.meta.url).pathname.replace(/^\//, "").replaceAll("/", "\\");
+const root = fileURLToPath(new URL("..", import.meta.url));
 const database = process.env.MEDICAL_CODING_D1_NAME || "medical-coding-journey";
 const remote = process.argv.includes("--local") ? [] : ["--remote"];
 const sql = (value) => `'${String(value ?? "").replaceAll("'", "''")}'`;
@@ -31,6 +34,12 @@ for (const path of files) {
   for (const category of ["icd10", "cpt", "hcpcs"]) for (const [index, value] of (Array.isArray(answer[category]) ? answer[category] : []).entries()) statements.push(`INSERT OR REPLACE INTO answers(case_id,coding_system,answer_value,answer_order,version,is_current,source_hash) VALUES(${sql(m.case_id)},${sql(category)},${sql(value)},${index},1,1,${sql(hash)});`);
 }
 const command = statements.join("\n");
-const args = ["d1", "execute", database, ...remote, "--command", command];
-execFileSync(process.platform === "win32" ? "npx.cmd" : "npx", ["wrangler", ...args], { cwd: root, stdio: "inherit" });
-console.log(`Imported ${files.length} case files into ${database}.`);
+if (!statements.length) throw new Error("No case files were found to import.");
+const tempDir = await mkdtemp(join(tmpdir(), "medical-coding-sync-"));
+const sqlFile = join(tempDir, "import.sql");
+try {
+  await writeFile(sqlFile, `${command}\n`, "utf8");
+  const args = ["d1", "execute", database, ...remote, "--file", sqlFile];
+  execFileSync(process.platform === "win32" ? "npx.cmd" : "npx", ["wrangler", ...args], { cwd: root, stdio: "inherit" });
+  console.log(`Imported ${files.length} case files into ${database}.`);
+} finally { await rm(tempDir, { recursive: true, force: true }); }
