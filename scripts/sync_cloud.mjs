@@ -5,6 +5,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { existsSync } from "node:fs";
 import { parseFrontmatter } from "./practice_core.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -40,6 +41,10 @@ const sqlFile = join(tempDir, "import.sql");
 try {
   await writeFile(sqlFile, `${command}\n`, "utf8");
   const args = ["d1", "execute", database, ...remote, "--file", sqlFile];
-  execFileSync(process.platform === "win32" ? "npx.cmd" : "npx", ["wrangler", ...args], { cwd: root, stdio: "inherit" });
+  const globalWrangler = process.platform === "win32" && process.env.APPDATA
+    ? join(process.env.APPDATA, "npm", "node_modules", "wrangler", "bin", "wrangler.js")
+    : "";
+  if (globalWrangler && existsSync(globalWrangler)) execFileSync(process.execPath, [globalWrangler, ...args], { cwd: root, stdio: "inherit" });
+  else execFileSync(process.platform === "win32" ? "npx.ps1" : "npx", ["wrangler", ...args], { cwd: root, stdio: "inherit", shell: process.platform === "win32" });
   console.log(`Imported ${files.length} case files into ${database}.`);
 } finally { await rm(tempDir, { recursive: true, force: true }); }
