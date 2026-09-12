@@ -2,11 +2,9 @@
 
 A beginner medical coding learning portfolio documenting study notes, case studies, and practice across ICD-10-CM, CPT, and HCPCS Level II.
 
-[Case study activity dashboard](https://ZicoSabine.github.io/Medical-Coding-Journey/) · [Privacy guidance](PRIVACY.md)
+[Open the live case study dashboard](https://ZicoSabine.github.io/Medical-Coding-Journey/) · [Privacy guidance](PRIVACY.md)
 
-[![Medical Coding Journey — case study activity preview](https://zicosabine.github.io/Medical-Coding-Journey/preview.svg)](https://zicosabine.github.io/Medical-Coding-Journey/)
-
-The preview updates with each successful deployment. Open the dashboard to select a day and follow links to its completed cases.
+Use the interactive dashboard to select a day and follow links to its completed cases.
 
 ## Local practice application
 
@@ -94,9 +92,9 @@ Hover, focus, or select a square for its date and count. Selecting a day lists a
 
 On mobile, tap a square and scroll the calendar horizontally. Tab enters the calendar at the selected day; arrow keys move by day vertically and week horizontally. Home/End move within the week, Ctrl+Home/End jump to the range edges, and Escape dismisses the tooltip. Enter or Space activates the date link. Tab then reaches the completed case links below the graph.
 
-The fixed intensity scale is **0 / 1 / 2–3 / 4–5 / 6–9 / 10+ cases per day**. Edit `LEVEL_THRESHOLDS` in `site/calendar.js` to change it; the legend and README preview use the same thresholds. Colors are `--level-0` through `--level-5` in `site/styles.css`, with separate light and dark surface tokens.
+The fixed intensity scale is **0 / 1 / 2–3 / 4–5 / 6–9 / 10+ cases per day**. Edit `LEVEL_THRESHOLDS` in `site/calendar.js` to change it; the legend uses the same thresholds. Colors are `--level-0` through `--level-5` in `site/styles.css`, with separate light and dark surface tokens.
 
-GitHub displays the README preview as an image linked to the interactive dashboard. `scripts/build_preview.mjs` regenerates `_site/preview.svg` during deployment from real activity, the shared calendar logic, dashboard copy, and CSS colors. The image's rolling range ends on the build's UTC date. No generated image or JSON needs to be committed or maintained manually. GitHub may briefly cache a previous image after deployment.
+GitHub Pages publishes the interactive dashboard from the current case activity during each deployment. No screenshot or generated image is committed to the repository; open the live dashboard link above to use the current view.
 
 ## Repository structure
 
@@ -128,7 +126,6 @@ Medical Coding/
 │   └── calendar.js
 ├── scripts/
 │   ├── build_site.py
-│   ├── build_preview.mjs
 │   ├── practice_core.mjs
 │   └── practice_server.mjs
 ├── tests/
@@ -136,7 +133,7 @@ Medical Coding/
 │   ├── test_calendar.mjs
 │   ├── test_practice_core.mjs
 │   ├── test_practice_server.mjs
-│   └── test_preview.mjs
+│   └── test_pwa.mjs
 ├── .github/workflows/pages.yml
 ├── .gitignore
 ├── requirements.txt
@@ -189,18 +186,17 @@ python -m http.server 8000 --directory _site
 
 Open [the local preview](http://localhost:8000). If PowerShell blocks activation, use `.venv\Scripts\python.exe` in place of `python`; activation is optional. Rebuild and refresh after note or site changes. Avoid opening `index.html` directly as a file because the page fetches its JSON over HTTP.
 
-For local JavaScript checks, the private practice workflow, and the README preview, install Node.js **22.7 or newer** (CI uses 24):
+For local JavaScript checks and the private practice workflow, install Node.js **22.7 or newer** (CI uses 24):
 
 ```sh
-node --test tests/test_calendar.mjs tests/test_preview.mjs tests/test_practice_core.mjs tests/test_practice_server.mjs
+node --test tests/test_calendar.mjs tests/test_practice_core.mjs tests/test_practice_server.mjs tests/test_pwa.mjs
 node --check site/app.js
 node --check site/calendar.js
 node --check scripts/practice_core.mjs
 node --check scripts/practice_server.mjs
-node scripts/build_preview.mjs
 ```
 
-The Python builder validates notes, recreates `_site/`, copies the four static site files, and generates `_site/data/case_activity.json`. The JSON contains daily counts and the paths/difficulties of completed cases, so the dashboard can link to them; note bodies are not copied. Run the Node preview command after the Python build to also create `_site/preview.svg`. GitHub Actions runs both automatically. `_site/` is ignored by Git; do not manually edit or commit generated data. Python/PyYAML build the dashboard; Node uses only its built-in modules to test JavaScript and generate the preview.
+The Python builder validates notes, recreates `_site/`, copies the static site files, and generates `_site/data/case_activity.json`. The JSON contains daily counts and the paths/difficulties of completed cases, so the dashboard can link to them; note bodies are not copied. GitHub Actions runs this build automatically. `_site/` is ignored by Git; do not manually edit or commit generated data.
 
 ## GitHub Pages setup
 

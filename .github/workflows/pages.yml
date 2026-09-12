@@ -36,18 +36,15 @@ jobs:
       - name: Test case-study counting and validation
         run: python -m unittest discover -s tests -v
       - name: Test calendar and local practice workflows
-        run: node --test tests/test_calendar.mjs tests/test_preview.mjs tests/test_practice_core.mjs tests/test_practice_server.mjs
+        run: node --test tests/test_calendar.mjs tests/test_practice_core.mjs tests/test_practice_server.mjs
       - name: Check browser JavaScript syntax
         run: |
           node --check site/app.js
           node --check site/calendar.js
-          node --check scripts/build_preview.mjs
           node --check scripts/practice_core.mjs
           node --check scripts/practice_server.mjs
       - name: Build static dashboard
         run: python scripts/build_site.py
-      - name: Generate GitHub README preview
-        run: node scripts/build_preview.mjs
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v4
