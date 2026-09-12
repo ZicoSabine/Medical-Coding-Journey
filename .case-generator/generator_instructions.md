@@ -52,8 +52,8 @@ Use general clinical knowledge. Do not copy or reverse-engineer proprietary refe
 - Use the next number in `case_registry.json`, while also checking the filesystem for collisions. If a target exists, advance to the next free number.
 - New cases always have `type: case-study`, `status: pending`, an empty `date:`, an empty `time:`, an empty `Google Help:`, and a `generated_date` matching the generation date.
 - `time` records the learner's time spent on the case. `Google Help` records the learner's Google-help count. The generator must leave both empty and must never overwrite learner-entered values.
-- When the learner completes a case, set `status: completed` and `date:` to the actual completion date in `YYYY-MM-DD` format. Preserve `generated_date`; the dashboard counts `date`, not `generated_date`.
-- After completion metadata has been saved, move the note into the matching `Case Study/Archive/<Difficulty>/` folder and update its path in `case_registry.json`. Preserve the filename, case ID, clinical content, and learner-entered values. If the note is already archived, do not move or duplicate it.
+- When the learner achieves a full verified match, set `status: completed` and `date:` to the actual completion date in `YYYY-MM-DD` format. Preserve `generated_date`; the dashboard counts `date`, not `generated_date`.
+- Only after a full verified match may the note be moved into the matching `Case Study/Archive/<Difficulty>/` folder and its path updated in `case_registry.json`. Preserve the filename, case ID, clinical content, and learner-entered values. If the learner misses any category, keep the note pending, record the failed attempt, and return it to the practice pool. If a system answer is corrected, save the correction and requeue the case for another attempt.
 
 Use this frontmatter unless a compatible template requirement adds a non-conflicting property:
 

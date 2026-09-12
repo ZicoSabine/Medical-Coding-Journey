@@ -239,6 +239,10 @@ function renderStats(stats, nextActivity) {
   byId("stat-average-note").textContent = stats?.timedCases
     ? `${stats.timedCases} timed ${stats.timedCases === 1 ? "case" : "cases"}`
     : "No timed cases yet";
+  byId("stat-correct").textContent = stats?.passedCases ?? "—";
+  byId("stat-correct-note").textContent = (stats?.failedCases ?? 0) > 0
+    ? `${stats.failedCases} failed ${stats.failedCases === 1 ? "case" : "cases"}`
+    : stats?.passedCases ? "All recorded cases passed" : "No outcome data yet";
 }
 
 function formatDuration(seconds) {
@@ -373,6 +377,33 @@ function transitionTo(view) {
   window.scrollTo({ top: 0, behavior: reducedMotion.matches ? "auto" : "smooth" });
 }
 
+function everyAnswerConfirmedCorrect() {
+  return Boolean(current?.categories?.length) && current.categories.every((category) => {
+    const state = current.verificationStates?.[category];
+    return state?.userCorrect === true && state?.systemCorrect === true;
+  });
+}
+
+function verificationInputsLocked() {
+  return everyAnswerConfirmedCorrect() || appState === APP_STATES.ARCHIVING;
+}
+
+function mergeCorrectionRows(previous, returned, categories) {
+  const merged = {};
+  for (const category of categories ?? []) {
+    const prior = Array.isArray(previous?.[category]) ? previous[category] : [];
+    const next = Array.isArray(returned?.[category]) ? [...returned[category]] : [];
+    let trailingBlankRows = 0;
+    for (let index = prior.length - 1; index >= 0 && !String(prior[index] ?? "").trim(); index -= 1) trailingBlankRows += 1;
+    while (next.length < prior.length && trailingBlankRows > 0) {
+      next.push("");
+      trailingBlankRows -= 1;
+    }
+    if (next.length || prior.length) merged[category] = next.length ? next : [""];
+  }
+  return merged;
+}
+
 function answerInput(category, value, index, correction = false) {
   const row = document.createElement("div");
   row.className = "answer-row";
@@ -384,7 +415,7 @@ function answerInput(category, value, index, correction = false) {
   input.value = value;
   input.placeholder = `${CATEGORY_LABELS[category]} code`;
   input.setAttribute("aria-label", `${correction ? "Corrected " : ""}${CATEGORY_LABELS[category]} answer ${index + 1}`);
-  input.readOnly = !correction && current.phase !== "answering";
+  input.readOnly = correction ? verificationInputsLocked() : current.phase !== "answering";
   input.addEventListener("input", () => {
     const target = correction ? current.correctedAnswers : current.userAnswers;
     target[category][index] = input.value;
@@ -396,7 +427,7 @@ function answerInput(category, value, index, correction = false) {
   remove.type = "button";
   remove.textContent = "×";
   remove.setAttribute("aria-label", `Remove ${CATEGORY_LABELS[category]} answer ${index + 1}`);
-  remove.disabled = (!correction && current.phase !== "answering");
+  remove.disabled = correction ? verificationInputsLocked() : current.phase !== "answering";
   remove.addEventListener("click", () => {
     const target = correction ? current.correctedAnswers : current.userAnswers;
     if (target[category].length === 1) target[category][0] = "";
@@ -434,12 +465,23 @@ function renderAnswerGroups() {
   const answering = current.phase === "answering";
   byId("check-button").hidden = !answering;
   byId("clue-button").disabled = !answering;
+  const caseLocked = verificationInputsLocked();
+  byId("close-case").hidden = caseLocked;
+  byId("cancel-case").hidden = caseLocked;
 }
 
-function codeChips(values) {
+function codeChips(values, emptyLabel = "No code recorded") {
   const list = document.createElement("div");
   list.className = "code-list";
-  for (const value of values ?? []) {
+  const cleaned = Array.isArray(values) ? values.filter((value) => String(value ?? "").trim()) : [];
+  if (!cleaned.length) {
+    const empty = document.createElement("span");
+    empty.className = "code-empty";
+    empty.textContent = emptyLabel;
+    list.append(empty);
+    return list;
+  }
+  for (const value of cleaned) {
     const chip = document.createElement("span");
     chip.className = "code-chip";
     chip.textContent = value;
@@ -453,13 +495,27 @@ function verificationChoice(category, target, correct) {
   label.className = "choice-label";
   const input = document.createElement("input");
   input.type = "radio";
+  const locked = verificationInputsLocked();
+  input.disabled = locked;
+  input.setAttribute("aria-disabled", String(locked));
+  label.classList.toggle("is-disabled", locked);
   input.name = `${category}-${target}`;
   input.value = String(correct);
   input.checked = current.verificationStates?.[category]?.[`${target}Correct`] === correct;
   input.addEventListener("change", () => {
     current.verificationStates[category] ??= { userCorrect: null, systemCorrect: null };
     current.verificationStates[category][`${target}Correct`] = correct;
-    if (target === "system" && !correct) current.correctedAnswers[category] ??= [""];
+    if (target === "system" && !correct) {
+      const userIsCorrect = current.verificationStates[category].userCorrect === true;
+      const submitted = Array.isArray(current.userAnswers?.[category])
+        ? current.userAnswers[category].filter((value) => String(value ?? "").trim())
+        : [];
+      if (userIsCorrect && submitted.length) current.correctedAnswers[category] = [...submitted];
+      else current.correctedAnswers[category] ??= [""];
+    }
+    if (target === "user" && !correct && current.verificationStates[category].systemCorrect === false) {
+      current.correctedAnswers[category] = [""];
+    }
     markVerificationDirty();
     renderVerification();
     scheduleVerification();
@@ -478,7 +534,9 @@ function correctionPanel(category) {
   const title = document.createElement("h3");
   title.textContent = "Correct Answer";
   const note = document.createElement("span");
-  note.textContent = "Required when the system answer is incorrect";
+  note.textContent = current.systemAnswers?.[category]?.length
+    ? "Enter the authoritative correction before completing"
+    : "Enter the missing authoritative code before completing";
   header.append(title, note);
   if (!current.correctedAnswers[category]?.length) current.correctedAnswers[category] = [""];
   panel.append(header, ...current.correctedAnswers[category].map((value, index) => answerInput(category, value, index, true)));
@@ -487,6 +545,7 @@ function correctionPanel(category) {
   add.className = "add-answer";
   add.textContent = "+ Add another corrected answer";
   add.addEventListener("click", () => { current.correctedAnswers[category].push(""); markVerificationDirty(); renderVerification(); });
+  add.disabled = verificationInputsLocked();
   panel.append(add);
   return panel;
 }
@@ -506,13 +565,13 @@ function renderVerification() {
     heading.append(title, match);
     const comparison = document.createElement("div");
     comparison.className = "answer-comparison";
-    for (const [label, values] of [["Your answer", current.userAnswers[category]], ["System answer", current.systemAnswers[category]]]) {
+    for (const [label, values, emptyLabel] of [["Your answer", current.userAnswers[category], "No answer entered"], ["System answer", current.systemAnswers[category], "No code recorded"]]) {
       const column = document.createElement("div");
       column.className = "comparison-column";
       const caption = document.createElement("span");
       caption.className = "comparison-label";
       caption.textContent = label;
-      column.append(caption, codeChips(values));
+      column.append(caption, codeChips(values, emptyLabel));
       comparison.append(column);
     }
     const controls = document.createElement("div");
@@ -529,7 +588,8 @@ function renderVerification() {
       controls.append(question);
     }
     group.append(heading, comparison, controls);
-    if (current.verificationStates?.[category]?.systemCorrect === false) group.append(correctionPanel(category));
+    const verification = current.verificationStates?.[category];
+    if (verification?.systemCorrect === false && verification.userCorrect !== true) group.append(correctionPanel(category));
     return group;
   });
   container.replaceChildren(...groups);
@@ -537,7 +597,12 @@ function renderVerification() {
   byId("verification-status").textContent = resolved ? "Ready to complete" : "Needs review";
   byId("verification-status").classList.toggle("is-success", resolved);
   byId("next-case").disabled = !resolved || appState === APP_STATES.ARCHIVING;
-  byId("return-home").disabled = !resolved || appState === APP_STATES.ARCHIVING;
+  byId("return-home").disabled = true;
+  byId("return-home").hidden = resolved;
+  byId("check-button").hidden = true;
+  byId("clue-button").disabled = true;
+  byId("close-case").hidden = verificationInputsLocked();
+  byId("cancel-case").hidden = verificationInputsLocked();
   byId("verification-card").hidden = false;
 }
 
@@ -565,11 +630,17 @@ async function persistVerification() {
   if (!current?.systemAnswers) return;
   setAppState(APP_STATES.VERIFYING);
   try {
+    const previousUserAnswers = current.userAnswers;
+    const previousCorrections = current.correctedAnswers;
     const result = await api("/api/cases/verify", {
       method: "POST",
-      body: { verificationStates: current.verificationStates, correctedAnswers: current.correctedAnswers },
+      body: { userAnswers: current.userAnswers, verificationStates: current.verificationStates, correctedAnswers: current.correctedAnswers },
     });
-    current = result;
+    current = {
+      ...result,
+      userAnswers: result.userAnswers ?? previousUserAnswers,
+      correctedAnswers: mergeCorrectionRows(previousCorrections, result.correctedAnswers, result.categories),
+    };
     setAppState(result.isResolved ? APP_STATES.RESOLVED : APP_STATES.REVIEWING);
     renderVerification();
     const meaningful = result.unresolved?.filter((message) => !message.includes("both verification choices")) ?? [];
@@ -687,7 +758,7 @@ async function completeCase(action) {
   const completedCaseId = current.caseId;
   const publish = byId("publish-checkbox").checked && !byId("publish-checkbox").disabled;
   try {
-    const result = await api("/api/cases/complete", { method: "POST", body: { action, publish } });
+    const result = await api("/api/cases/complete", { method: "POST", body: { action, publish, userAnswers: current.userAnswers, verificationStates: current.verificationStates, correctedAnswers: current.correctedAnswers } });
     setAppState(APP_STATES.COMPLETED);
     current = null;
     window.clearInterval(stopwatchTimer);
@@ -701,6 +772,7 @@ async function completeCase(action) {
     }
     const continueFlow = () => {
       if (result.noMore) openNoMore(result.difficulty);
+      else if (result.requeued) showToast("Not a full match yet. This case was returned to the practice pool.");
       else if (result.case) showToast("Case completed and archived. Your next case is ready.");
       else showToast("Case completed, saved, and archived.");
     };

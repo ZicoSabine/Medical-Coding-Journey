@@ -71,7 +71,7 @@ async function apiResponse(repository, request, response, url) {
   if (url.pathname === "/api/cases/select") return sendJson(response, 200, await repository.select(body.difficulty));
   if (url.pathname === "/api/cases/clue") return sendJson(response, 200, await repository.clue());
   if (url.pathname === "/api/cases/check") return sendJson(response, 200, await repository.check(body.userAnswers));
-  if (url.pathname === "/api/cases/verify") return sendJson(response, 200, await repository.verify(body.verificationStates, body.correctedAnswers));
+  if (url.pathname === "/api/cases/verify") return sendJson(response, 200, await repository.verify(body.verificationStates, body.correctedAnswers, body.userAnswers));
   if (url.pathname === "/api/cases/cancel") return sendJson(response, 200, await repository.cancel());
   if (url.pathname === "/api/cases/complete") return sendJson(response, 200, await repository.complete(body.action, body.publish));
   if (url.pathname === "/api/cases/publish") return sendJson(response, 200, await repository.publish(body.caseId));

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -106,6 +106,23 @@ test("checking reveals answers only after confirmation endpoint and stores raw i
   assert.equal(checked.phase, "reviewing");
 });
 
+test("empty coding categories stay empty through verification", async (t) => {
+  const setup = await fixture();
+  t.after(setup.cleanup);
+  await addCase(setup, {}, { icd10: ["S52.501A"], cpt: [] });
+  await setup.repository.select("simple");
+  const checked = await setup.repository.check({ icd10: ["S52.501A"], cpt: [""] });
+  assert.deepEqual(checked.systemAnswers, { icd10: ["S52.501A"], cpt: [] });
+  assert.deepEqual(checked.comparisonResults, { icd10: true, cpt: true });
+  const verified = await setup.repository.verify({
+    icd10: { userCorrect: true, systemCorrect: true },
+    cpt: { userCorrect: true, systemCorrect: true },
+  }, {});
+  assert.equal(verified.isResolved, true);
+  const completed = await setup.repository.complete("home");
+  assert.equal(completed.completed, true);
+});
+
 test("manual verification supports every correctness combination and requires corrections", async (t) => {
   const setup = await fixture();
   t.after(setup.cleanup);
@@ -117,6 +134,7 @@ test("manual verification supports every correctness combination and requires co
     cpt: { userCorrect: true, systemCorrect: true },
   }, { icd10: [""] });
   assert.equal(incomplete.isResolved, false);
+  assert.deepEqual(incomplete.userAnswers, { icd10: ["S52.501D"], cpt: ["73110"] });
   assert.ok(incomplete.unresolved.some((message) => message.includes("corrected authoritative")));
   const resolved = await setup.repository.verify({
     icd10: { userCorrect: false, systemCorrect: false },
@@ -135,17 +153,52 @@ test("checking alone never permits archiving", async (t) => {
   assert.equal(await readFile(source, "utf8").then(() => true), true);
 });
 
-test("completion records history, corrects the key, updates metadata, and archives safely", async (t) => {
+test("a correct user answer replaces an incorrect system answer automatically", async (t) => {
+  const setup = await fixture();
+  t.after(setup.cleanup);
+  const source = await addCase(setup);
+  await setup.repository.select("simple");
+  await setup.repository.check({ icd10: ["S52.502A"], cpt: ["73110"] });
+  const verified = await setup.repository.verify({
+    icd10: { userCorrect: true, systemCorrect: false },
+    cpt: { userCorrect: true, systemCorrect: true },
+  }, {} , { icd10: ["S52.502A"], cpt: ["73110"] });
+  assert.equal(verified.isResolved, true);
+  assert.deepEqual(verified.correctedAnswers.icd10, ["S52.502A"]);
+  const completed = await setup.repository.complete("home");
+  assert.equal(completed.completed, true);
+  await assert.rejects(() => readFile(source, "utf8"), /ENOENT/);
+});
+
+test("failed attempts requeue, correct the key, and archive only after a full match", async (t) => {
   const setup = await fixture();
   t.after(setup.cleanup);
   const source = await addCase(setup);
   await setup.repository.select("simple");
   await setup.repository.check({ icd10: ["S52.502A"], cpt: ["73110"] });
   await setup.repository.verify({
-    icd10: { userCorrect: true, systemCorrect: false },
+    icd10: { userCorrect: false, systemCorrect: false },
     cpt: { userCorrect: true, systemCorrect: true },
   }, { icd10: ["S52.502A"] });
   setup.advance(125_000);
+  const requeued = await setup.repository.complete("home");
+  assert.equal(requeued.completed, false);
+  assert.equal(requeued.requeued, true);
+  assert.equal(await readFile(source, "utf8").then(() => true), true);
+  const pending = await readFile(source, "utf8");
+  assert.match(pending, /status: pending/);
+  const resultFiles = await readdir(join(setup.root, ".case-generator", "results"));
+  assert.equal(resultFiles.length, 1);
+  const failedResult = JSON.parse(await readFile(join(setup.root, ".case-generator", "results", resultFiles[0]), "utf8"));
+  assert.equal(failedResult.answer_outcome, "failed");
+  assert.deepEqual(failedResult.original_system_answers.icd10, ["S52.501A"]);
+  assert.deepEqual(failedResult.authoritative_answers.icd10, ["S52.502A"]);
+  await setup.repository.select("simple");
+  await setup.repository.check({ icd10: ["S52.502A"], cpt: ["73110"] });
+  await setup.repository.verify({
+    icd10: { userCorrect: true, systemCorrect: true },
+    cpt: { userCorrect: true, systemCorrect: true },
+  }, {});
   const completed = await setup.repository.complete("home");
   assert.equal(completed.completed, true);
   await assert.rejects(() => readFile(source, "utf8"), /ENOENT/);
@@ -155,17 +208,18 @@ test("completion records history, corrects the key, updates metadata, and archiv
   assert.match(archived, /date: 2026-09-05/);
   const result = JSON.parse(await readFile(join(setup.root, ".case-generator", "results", "CASE-0001.json"), "utf8"));
   assert.deepEqual(result.user_answers_raw.icd10, ["S52.502A"]);
-  assert.deepEqual(result.original_system_answers.icd10, ["S52.501A"]);
+  assert.deepEqual(result.original_system_answers.icd10, ["S52.502A"]);
   assert.deepEqual(result.authoritative_answers.icd10, ["S52.502A"]);
-  assert.equal(result.solve_duration_seconds, 125);
+  assert.equal(result.solve_duration_seconds, 0);
+  assert.equal(result.answer_outcome, "passed");
   const answers = JSON.parse(await readFile(join(setup.root, ".case-generator", "answer_registry.json"), "utf8"));
   assert.deepEqual(answers.cases["CASE-0001"].icd10, ["S52.502A"]);
   assert.equal(answers.cases["CASE-0001"].correction_history.length, 1);
   const registry = JSON.parse(await readFile(join(setup.root, ".case-generator", "case_registry.json"), "utf8"));
   assert.equal(registry.cases[0].path, "Case Study/Archive/Simple/CASE-0001.md");
   assert.equal(completed.dashboard.stats.totalCompleted, 1);
-  assert.equal(completed.dashboard.stats.averageSolveSeconds, 125);
-  assert.equal(completed.dashboard.stats.timedCases, 1);
+  assert.equal(completed.dashboard.stats.averageSolveSeconds, 63);
+  assert.equal(completed.dashboard.stats.timedCases, 2);
 });
 
 test("next case preserves resolved difficulty and handles an empty queue", async (t) => {

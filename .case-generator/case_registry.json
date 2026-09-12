@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "next_case_number": 26,
+  "next_case_number": 41,
   "cases": [
     {
       "case_id": "CASE-0001",
@@ -12,8 +12,12 @@
       "specialty": "general",
       "patient_demographic": "34-year-old female",
       "presentation": "dysuria and urinary frequency",
-      "diagnoses": ["acute uncomplicated cystitis"],
-      "procedures_or_services": ["urinalysis"]
+      "diagnoses": [
+        "acute uncomplicated cystitis"
+      ],
+      "procedures_or_services": [
+        "urinalysis"
+      ]
     },
     {
       "case_id": "CASE-0002",
@@ -25,8 +29,12 @@
       "specialty": "Orthopedics",
       "patient_demographic": "27-year-old male",
       "presentation": "sports-related left ankle inversion injury",
-      "diagnoses": ["left anterior talofibular ligament sprain"],
-      "procedures_or_services": ["ankle radiographs"]
+      "diagnoses": [
+        "left anterior talofibular ligament sprain"
+      ],
+      "procedures_or_services": [
+        "ankle radiographs"
+      ]
     },
     {
       "case_id": "CASE-0003",
@@ -38,7 +46,9 @@
       "specialty": "Dermatology",
       "patient_demographic": "8-year-old female",
       "presentation": "pruritic flexural rash",
-      "diagnoses": ["atopic dermatitis"],
+      "diagnoses": [
+        "atopic dermatitis"
+      ],
       "procedures_or_services": []
     },
     {
@@ -51,7 +61,9 @@
       "specialty": "Infectious disease",
       "patient_demographic": "52-year-old male",
       "presentation": "painful unilateral thoracic vesicular rash",
-      "diagnoses": ["herpes zoster without complication"],
+      "diagnoses": [
+        "herpes zoster without complication"
+      ],
       "procedures_or_services": []
     },
     {
@@ -64,8 +76,12 @@
       "specialty": "Cardiology",
       "patient_demographic": "68-year-old male",
       "presentation": "palpitations with irregular pulse",
-      "diagnoses": ["atrial fibrillation"],
-      "procedures_or_services": ["electrocardiogram"]
+      "diagnoses": [
+        "atrial fibrillation"
+      ],
+      "procedures_or_services": [
+        "electrocardiogram"
+      ]
     },
     {
       "case_id": "CASE-0006",
@@ -77,8 +93,12 @@
       "specialty": "Pediatrics",
       "patient_demographic": "4-year-old male",
       "presentation": "right ear pain and fever after a recent respiratory illness",
-      "diagnoses": ["acute suppurative otitis media of the right ear without spontaneous rupture"],
-      "procedures_or_services": ["otoscopic examination"]
+      "diagnoses": [
+        "acute suppurative otitis media of the right ear without spontaneous rupture"
+      ],
+      "procedures_or_services": [
+        "otoscopic examination"
+      ]
     },
     {
       "case_id": "CASE-0007",
@@ -90,8 +110,13 @@
       "specialty": "Orthopedics",
       "patient_demographic": "72-year-old female",
       "presentation": "left wrist injury after a fall",
-      "diagnoses": ["closed extra-articular fracture of the distal left radius"],
-      "procedures_or_services": ["wrist radiographs", "removable wrist splint"]
+      "diagnoses": [
+        "closed extra-articular fracture of the distal left radius"
+      ],
+      "procedures_or_services": [
+        "wrist radiographs",
+        "removable wrist splint"
+      ]
     },
     {
       "case_id": "CASE-0008",
@@ -103,8 +128,12 @@
       "specialty": "Pulmonology",
       "patient_demographic": "19-year-old female",
       "presentation": "wheezing and chest tightness after animal-dander exposure",
-      "diagnoses": ["mild intermittent asthma with acute exacerbation"],
-      "procedures_or_services": ["video evaluation"]
+      "diagnoses": [
+        "mild intermittent asthma with acute exacerbation"
+      ],
+      "procedures_or_services": [
+        "video evaluation"
+      ]
     },
     {
       "case_id": "CASE-0009",
@@ -116,7 +145,9 @@
       "specialty": "Gastroenterology",
       "patient_demographic": "45-year-old female",
       "presentation": "post-meal heartburn and regurgitation without alarm symptoms",
-      "diagnoses": ["gastroesophageal reflux disease without esophagitis"],
+      "diagnoses": [
+        "gastroesophageal reflux disease without esophagitis"
+      ],
       "procedures_or_services": []
     },
     {
@@ -129,12 +160,14 @@
       "specialty": "Ophthalmology",
       "patient_demographic": "31-year-old male",
       "presentation": "unilateral red eye with purulent discharge",
-      "diagnoses": ["acute bacterial conjunctivitis of the left eye"],
+      "diagnoses": [
+        "acute bacterial conjunctivitis of the left eye"
+      ],
       "procedures_or_services": []
     },
     {
       "case_id": "CASE-0011",
-      "path": "Case Study/Simple/CASE-0011.md",
+      "path": "Case Study/Archive/Simple/CASE-0011.md",
       "generated_date": "2026-09-06",
       "request_type": "manual",
       "difficulty": "simple",
@@ -142,12 +175,16 @@
       "specialty": "Pediatrics",
       "patient_demographic": "12-year-old female",
       "presentation": "sore throat with fever and painful swallowing",
-      "diagnoses": ["streptococcal pharyngitis"],
-      "procedures_or_services": ["rapid group A streptococcal antigen test"]
+      "diagnoses": [
+        "streptococcal pharyngitis"
+      ],
+      "procedures_or_services": [
+        "rapid group A streptococcal antigen test"
+      ]
     },
     {
       "case_id": "CASE-0012",
-      "path": "Case Study/Simple/CASE-0012.md",
+      "path": "Case Study/Archive/Simple/CASE-0012.md",
       "generated_date": "2026-09-06",
       "request_type": "manual",
       "difficulty": "simple",
@@ -155,8 +192,12 @@
       "specialty": "Pulmonology",
       "patient_demographic": "41-year-old male",
       "presentation": "productive cough with fever and shortness of breath",
-      "diagnoses": ["pneumonia of unspecified organism"],
-      "procedures_or_services": ["two-view chest radiographs"]
+      "diagnoses": [
+        "pneumonia of unspecified organism"
+      ],
+      "procedures_or_services": [
+        "two-view chest radiographs"
+      ]
     },
     {
       "case_id": "CASE-0013",
@@ -168,8 +209,12 @@
       "specialty": "Endocrinology",
       "patient_demographic": "56-year-old female",
       "presentation": "polydipsia, polyuria, and fatigue",
-      "diagnoses": ["type 2 diabetes mellitus with hyperglycemia"],
-      "procedures_or_services": ["laboratory hemoglobin A1c measurement"]
+      "diagnoses": [
+        "type 2 diabetes mellitus with hyperglycemia"
+      ],
+      "procedures_or_services": [
+        "laboratory hemoglobin A1c measurement"
+      ]
     },
     {
       "case_id": "CASE-0014",
@@ -181,8 +226,12 @@
       "specialty": "Orthopedics",
       "patient_demographic": "67-year-old female",
       "presentation": "progressive left knee pain and stiffness",
-      "diagnoses": ["primary osteoarthritis of left knee"],
-      "procedures_or_services": ["three-view left knee radiographs"]
+      "diagnoses": [
+        "primary osteoarthritis of left knee"
+      ],
+      "procedures_or_services": [
+        "three-view left knee radiographs"
+      ]
     },
     {
       "case_id": "CASE-0015",
@@ -194,12 +243,14 @@
       "specialty": "Ear nose and throat",
       "patient_demographic": "38-year-old male",
       "presentation": "persistent facial pressure and purulent nasal drainage",
-      "diagnoses": ["acute maxillary sinusitis"],
+      "diagnoses": [
+        "acute maxillary sinusitis"
+      ],
       "procedures_or_services": []
     },
     {
       "case_id": "CASE-0016",
-      "path": "Case Study/Simple/CASE-0016.md",
+      "path": "Case Study/Archive/Simple/CASE-0016.md",
       "generated_date": "2026-09-06",
       "request_type": "manual",
       "difficulty": "simple",
@@ -207,8 +258,12 @@
       "specialty": "Urology",
       "patient_demographic": "44-year-old male",
       "presentation": "acute right flank pain radiating to the groin",
-      "diagnoses": ["right renal calculus"],
-      "procedures_or_services": ["CT abdomen and pelvis without contrast"]
+      "diagnoses": [
+        "right renal calculus"
+      ],
+      "procedures_or_services": [
+        "CT abdomen and pelvis without contrast"
+      ]
     },
     {
       "case_id": "CASE-0017",
@@ -220,12 +275,17 @@
       "specialty": "Hematology",
       "patient_demographic": "29-year-old female",
       "presentation": "fatigue and reduced exercise tolerance",
-      "diagnoses": ["iron deficiency anemia"],
-      "procedures_or_services": ["complete blood count with differential", "serum ferritin test"]
+      "diagnoses": [
+        "iron deficiency anemia"
+      ],
+      "procedures_or_services": [
+        "complete blood count with differential",
+        "serum ferritin test"
+      ]
     },
     {
       "case_id": "CASE-0018",
-      "path": "Case Study/Simple/CASE-0018.md",
+      "path": "Case Study/Archive/Simple/CASE-0018.md",
       "generated_date": "2026-09-06",
       "request_type": "manual",
       "difficulty": "simple",
@@ -233,8 +293,12 @@
       "specialty": "Neurology",
       "patient_demographic": "46-year-old female",
       "presentation": "nocturnal right median-distribution hand paresthesia",
-      "diagnoses": ["right carpal tunnel syndrome"],
-      "procedures_or_services": ["five nerve-conduction studies"]
+      "diagnoses": [
+        "right carpal tunnel syndrome"
+      ],
+      "procedures_or_services": [
+        "five nerve-conduction studies"
+      ]
     },
     {
       "case_id": "CASE-0019",
@@ -246,8 +310,12 @@
       "specialty": "General surgery",
       "patient_demographic": "24-year-old male",
       "presentation": "right lower abdominal pain with nausea",
-      "diagnoses": ["acute appendicitis"],
-      "procedures_or_services": ["CT abdomen and pelvis with intravenous contrast"]
+      "diagnoses": [
+        "acute appendicitis"
+      ],
+      "procedures_or_services": [
+        "CT abdomen and pelvis with intravenous contrast"
+      ]
     },
     {
       "case_id": "CASE-0020",
@@ -259,8 +327,12 @@
       "specialty": "General",
       "patient_demographic": "35-year-old female",
       "presentation": "palpable upper-outer left breast lump",
-      "diagnoses": ["lump in upper-outer quadrant of left breast"],
-      "procedures_or_services": ["limited left breast ultrasound"]
+      "diagnoses": [
+        "lump in upper-outer quadrant of left breast"
+      ],
+      "procedures_or_services": [
+        "limited left breast ultrasound"
+      ]
     },
     {
       "case_id": "CASE-0021",
@@ -272,8 +344,12 @@
       "specialty": "Gastroenterology",
       "patient_demographic": "62-year-old male",
       "presentation": "rectal bleeding and change in bowel habits",
-      "diagnoses": ["adenocarcinoma of sigmoid colon"],
-      "procedures_or_services": ["colonoscopy with lesion biopsy"]
+      "diagnoses": [
+        "adenocarcinoma of sigmoid colon"
+      ],
+      "procedures_or_services": [
+        "colonoscopy with lesion biopsy"
+      ]
     },
     {
       "case_id": "CASE-0022",
@@ -285,8 +361,12 @@
       "specialty": "Pulmonology",
       "patient_demographic": "70-year-old male",
       "presentation": "persistent cough, weight loss, and right upper-lobe mass",
-      "diagnoses": ["squamous cell carcinoma of right upper lung lobe"],
-      "procedures_or_services": ["bronchoscopy with endobronchial lesion biopsy"]
+      "diagnoses": [
+        "squamous cell carcinoma of right upper lung lobe"
+      ],
+      "procedures_or_services": [
+        "bronchoscopy with endobronchial lesion biopsy"
+      ]
     },
     {
       "case_id": "CASE-0023",
@@ -298,8 +378,13 @@
       "specialty": "Cardiology",
       "patient_demographic": "74-year-old female",
       "presentation": "acute dyspnea, pulmonary edema, and hypoxemia",
-      "diagnoses": ["acute systolic heart failure", "acute hypoxic respiratory failure"],
-      "procedures_or_services": ["initial hospital care"]
+      "diagnoses": [
+        "acute systolic heart failure",
+        "acute hypoxic respiratory failure"
+      ],
+      "procedures_or_services": [
+        "initial hospital care"
+      ]
     },
     {
       "case_id": "CASE-0024",
@@ -311,8 +396,12 @@
       "specialty": "Gastroenterology",
       "patient_demographic": "49-year-old female",
       "presentation": "persistent epigastric burning and nausea",
-      "diagnoses": ["gastritis without bleeding due to Helicobacter pylori"],
-      "procedures_or_services": ["upper gastrointestinal endoscopy with gastric biopsies"]
+      "diagnoses": [
+        "gastritis without bleeding due to Helicobacter pylori"
+      ],
+      "procedures_or_services": [
+        "upper gastrointestinal endoscopy with gastric biopsies"
+      ]
     },
     {
       "case_id": "CASE-0025",
@@ -324,8 +413,259 @@
       "specialty": "Neurosurgery",
       "patient_demographic": "53-year-old male",
       "presentation": "low-back pain with left lumbar radicular symptoms",
-      "diagnoses": ["lumbar intervertebral disc disorder with radiculopathy"],
-      "procedures_or_services": ["lumbar spine MRI without contrast"]
+      "diagnoses": [
+        "lumbar intervertebral disc disorder with radiculopathy"
+      ],
+      "procedures_or_services": [
+        "lumbar spine MRI without contrast"
+      ]
+    },
+    {
+      "case_id": "CASE-0026",
+      "path": "Case Study/Simple/CASE-0026.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Primary care",
+      "specialty": "General",
+      "patient_demographic": "58-year-old female",
+      "presentation": "persistently elevated blood-pressure readings",
+      "diagnoses": [
+        "essential primary hypertension"
+      ],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0027",
+      "path": "Case Study/Simple/CASE-0027.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Specialty clinics",
+      "specialty": "Neurology",
+      "patient_demographic": "33-year-old female",
+      "presentation": "recurrent migraine symptoms without aura",
+      "diagnoses": [
+        "migraine without aura, not intractable, without status migrainosus"
+      ],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0028",
+      "path": "Case Study/Simple/CASE-0028.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Specialty clinics",
+      "specialty": "Dermatology",
+      "patient_demographic": "26-year-old male",
+      "presentation": "pruritic annular rash on the trunk",
+      "diagnoses": [
+        "tinea corporis"
+      ],
+      "procedures_or_services": [
+        "potassium hydroxide slide examination of skin scrapings"
+      ]
+    },
+    {
+      "case_id": "CASE-0029",
+      "path": "Case Study/Simple/CASE-0029.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Urgent care",
+      "specialty": "Pulmonology",
+      "patient_demographic": "40-year-old male",
+      "presentation": "acute cough and chest congestion",
+      "diagnoses": [
+        "acute bronchitis of unspecified organism"
+      ],
+      "procedures_or_services": [
+        "two-view chest radiographs"
+      ]
+    },
+    {
+      "case_id": "CASE-0030",
+      "path": "Case Study/Simple/CASE-0030.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Urgent care",
+      "specialty": "Infectious disease",
+      "patient_demographic": "61-year-old female",
+      "presentation": "right lower-leg erythema and tenderness",
+      "diagnoses": [
+        "cellulitis of right lower limb"
+      ],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0031",
+      "path": "Case Study/Simple/CASE-0031.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Specialty clinics",
+      "specialty": "Ear nose and throat",
+      "patient_demographic": "72-year-old female",
+      "presentation": "right-sided positional vertigo",
+      "diagnoses": [
+        "benign paroxysmal vertigo of right ear"
+      ],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0032",
+      "path": "Case Study/Simple/CASE-0032.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Specialty clinics",
+      "specialty": "Allergy and immunology",
+      "patient_demographic": "29-year-old male",
+      "presentation": "seasonal nasal and ocular allergy symptoms",
+      "diagnoses": [
+        "allergic rhinitis due to pollen"
+      ],
+      "procedures_or_services": [
+        "twelve percutaneous allergen tests"
+      ]
+    },
+    {
+      "case_id": "CASE-0033",
+      "path": "Case Study/Simple/CASE-0033.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Primary care",
+      "specialty": "Gastroenterology",
+      "patient_demographic": "47-year-old female",
+      "presentation": "infrequent hard stools and abdominal fullness",
+      "diagnoses": [
+        "constipation, unspecified"
+      ],
+      "procedures_or_services": [
+        "single-view abdominal radiograph"
+      ]
+    },
+    {
+      "case_id": "CASE-0034",
+      "path": "Case Study/Simple/CASE-0034.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Specialty clinics",
+      "specialty": "Orthopedics",
+      "patient_demographic": "43-year-old male",
+      "presentation": "left shoulder pain with overhead movement",
+      "diagnoses": [
+        "impingement syndrome of left shoulder"
+      ],
+      "procedures_or_services": [
+        "three-view left shoulder radiographs"
+      ]
+    },
+    {
+      "case_id": "CASE-0035",
+      "path": "Case Study/Simple/CASE-0035.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "simple",
+      "coding_area": "Urgent care",
+      "specialty": "Ear nose and throat",
+      "patient_demographic": "18-year-old female",
+      "presentation": "right ear pain after swimming",
+      "diagnoses": [
+        "swimmer's ear of right ear"
+      ],
+      "procedures_or_services": []
+    },
+    {
+      "case_id": "CASE-0036",
+      "path": "Case Study/Intermediate/CASE-0036.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "intermediate",
+      "coding_area": "Specialty clinics",
+      "specialty": "Orthopedics",
+      "patient_demographic": "66-year-old female",
+      "presentation": "progressive right knee pain and stiffness",
+      "diagnoses": [
+        "unilateral primary osteoarthritis of right knee"
+      ],
+      "procedures_or_services": [
+        "right knee aspiration and injection without ultrasound guidance",
+        "triamcinolone acetonide supply"
+      ]
+    },
+    {
+      "case_id": "CASE-0037",
+      "path": "Case Study/Intermediate/CASE-0037.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "intermediate",
+      "coding_area": "Ambulatory surgery center",
+      "specialty": "Ophthalmology",
+      "patient_demographic": "74-year-old male",
+      "presentation": "progressive painless visual loss in left eye",
+      "diagnoses": [
+        "age-related nuclear cataract of left eye"
+      ],
+      "procedures_or_services": [
+        "routine cataract removal with posterior chamber intraocular lens"
+      ]
+    },
+    {
+      "case_id": "CASE-0038",
+      "path": "Case Study/Intermediate/CASE-0038.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "intermediate",
+      "coding_area": "Hospital outpatient",
+      "specialty": "Urology",
+      "patient_demographic": "51-year-old female",
+      "presentation": "left renal colic from ureteral calculus",
+      "diagnoses": [
+        "calculus of ureter"
+      ],
+      "procedures_or_services": [
+        "cystourethroscopy with temporary ureteral stent insertion"
+      ]
+    },
+    {
+      "case_id": "CASE-0039",
+      "path": "Case Study/Intermediate/CASE-0039.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "intermediate",
+      "coding_area": "Specialty clinics",
+      "specialty": "Pulmonology",
+      "patient_demographic": "48-year-old male",
+      "presentation": "snoring, witnessed apnea, and daytime sleepiness",
+      "diagnoses": [
+        "obstructive sleep apnea"
+      ],
+      "procedures_or_services": [
+        "unattended type-three home sleep test"
+      ]
+    },
+    {
+      "case_id": "CASE-0040",
+      "path": "Case Study/Intermediate/CASE-0040.md",
+      "generated_date": "2026-09-12",
+      "request_type": "manual",
+      "difficulty": "intermediate",
+      "coding_area": "Ambulance services",
+      "specialty": "Emergency medicine",
+      "patient_demographic": "69-year-old female",
+      "presentation": "acute chest pressure with nausea and diaphoresis",
+      "diagnoses": [
+        "chest pain, unspecified"
+      ],
+      "procedures_or_services": [
+        "emergency advanced-life-support ground ambulance transport",
+        "seven loaded statute miles"
+      ]
     }
   ],
   "legacy_files": [

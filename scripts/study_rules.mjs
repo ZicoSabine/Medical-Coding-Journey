@@ -23,13 +23,15 @@ export function answersMatch(left, right) {
   return JSON.stringify(normalizedAnswerList(left)) === JSON.stringify(normalizedAnswerList(right));
 }
 
-export function unresolvedVerification(categories, states, corrections) {
+export function unresolvedVerification(categories, states, corrections, userAnswers = {}) {
   const unresolved = [];
   for (const category of categories) {
     const verification = states?.[category];
     if (typeof verification?.userCorrect !== "boolean" || typeof verification?.systemCorrect !== "boolean") {
       unresolved.push(`${category.toUpperCase()} needs both verification choices.`);
-    } else if (verification.systemCorrect === false && !cleanAnswerList(corrections?.[category]).length) {
+    } else if (verification.systemCorrect === false
+      && !((verification.userCorrect === true && cleanAnswerList(userAnswers?.[category]).length)
+        || cleanAnswerList(corrections?.[category]).length)) {
       unresolved.push(`${category.toUpperCase()} needs a corrected authoritative answer.`);
     }
   }

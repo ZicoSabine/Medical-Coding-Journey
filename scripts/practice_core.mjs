@@ -592,6 +592,8 @@ export class PracticeRepository {
     const sortedCases = Object.fromEntries(Object.entries(cases).sort(([a], [b]) => a.localeCompare(b)));
     const today = this.today();
     const solveTimes = [];
+    let passedCases = 0;
+    let failedCases = 0;
     if (await exists(this.resultsRoot)) {
       for (const entry of await readdir(this.resultsRoot, { withFileTypes: true })) {
         if (!entry.isFile() || extname(entry.name).toLowerCase() !== ".json") continue;
@@ -600,6 +602,8 @@ export class PracticeRepository {
           if (Number.isFinite(result.solve_duration_seconds) && result.solve_duration_seconds >= 0) {
             solveTimes.push(result.solve_duration_seconds);
           }
+          if (result.answer_outcome === "passed") passedCases += 1;
+          if (result.answer_outcome === "failed") failedCases += 1;
         } catch { /* Invalid private result files do not block the public dashboard. */ }
       }
     }
@@ -615,6 +619,8 @@ export class PracticeRepository {
           ? Math.round(solveTimes.reduce((sum, seconds) => sum + seconds, 0) / solveTimes.length)
           : null,
         timedCases: solveTimes.length,
+        passedCases,
+        failedCases,
       },
       issues,
     };
@@ -781,7 +787,7 @@ export class PracticeRepository {
     });
   }
 
-  async verify(verificationStates, correctedAnswers) {
+  async verify(verificationStates, correctedAnswers, userAnswers = {}) {
     return this._withLock(async () => {
       const session = await this._loadSession();
       if (!session?.casePath || !["reviewing", "resolved"].includes(session.phase)) {
@@ -799,7 +805,11 @@ export class PracticeRepository {
         const userCorrect = typeof value.userCorrect === "boolean" ? value.userCorrect : null;
         const systemCorrect = typeof value.systemCorrect === "boolean" ? value.systemCorrect : null;
         storedVerification[category] = { userCorrect, systemCorrect };
-        storedCorrections[category] = cleanAnswerList(correctedAnswers?.[category]);
+        const submitted = cleanAnswerList(userAnswers?.[category]);
+        const suppliedCorrection = cleanAnswerList(correctedAnswers?.[category]);
+        storedCorrections[category] = systemCorrect === false && userCorrect === true && submitted.length
+          ? submitted
+          : suppliedCorrection;
         if (userCorrect === null || systemCorrect === null) unresolved.push(`${category.toUpperCase()} needs both verification choices.`);
         if (systemCorrect === false && !storedCorrections[category].length) unresolved.push(`${category.toUpperCase()} needs a corrected authoritative answer.`);
         if (systemCorrect === true) authoritative[category] = systemAnswers[category];
@@ -836,7 +846,7 @@ export class PracticeRepository {
         if (typeof verification?.userCorrect !== "boolean" || typeof verification?.systemCorrect !== "boolean") {
           throw new PracticeError("UNRESOLVED_CASE", `${category.toUpperCase()} still needs manual verification.`, 409);
         }
-        if (verification.systemCorrect === false && !correction.length) {
+        if (verification.systemCorrect === false && verification.userCorrect !== true && !correction.length) {
           throw new PracticeError("UNRESOLVED_CASE", `${category.toUpperCase()} needs a corrected authoritative answer.`, 409);
         }
       }
@@ -848,8 +858,21 @@ export class PracticeRepository {
       await mkdir(archiveFolder, { recursive: true });
       const archivePath = join(archiveFolder, basename(record.path));
       if (await exists(archivePath)) throw new PracticeError("ARCHIVE_COLLISION", `Archive already contains ${basename(record.path)}. Nothing was overwritten.`, 409);
-      const resultPath = join(this.resultsRoot, `${record.caseId}.json`);
-      if (await exists(resultPath)) throw new PracticeError("RESULT_COLLISION", `A study result already exists for ${record.caseId}. Nothing was overwritten.`, 409);
+      const passed = categories.every((category) => {
+        const verification = session.verificationStates[category];
+        const systemAccepted = verification?.systemCorrect === true
+          && answersMatch(session.userAnswers[category], originalSystemAnswers[category]);
+        const corrected = cleanAnswerList(session.correctedAnswers?.[category]);
+        const correctedAccepted = verification?.systemCorrect === false
+          && verification?.userCorrect === true
+          && corrected.length > 0
+          && answersMatch(session.userAnswers[category], corrected);
+        return verification?.userCorrect === true && (systemAccepted || correctedAccepted);
+      });
+      const resultPath = join(this.resultsRoot, passed
+        ? `${record.caseId}.json`
+        : `${record.caseId}-${Date.now()}-${randomUUID().slice(0, 8)}.json`);
+      if (passed && await exists(resultPath)) throw new PracticeError("RESULT_COLLISION", `A study result already exists for ${record.caseId}. Nothing was overwritten.`, 409);
 
       const authoritativeAnswers = {};
       const updatedAnswerRegistry = deepCopy(answerRegistry);
@@ -888,13 +911,14 @@ export class PracticeRepository {
         corrected_answers: session.correctedAnswers,
         authoritative_answers: authoritativeAnswers,
         automatic_matches: session.comparisonResults,
+        answer_outcome: passed ? "passed" : "failed",
         clue_usage: Number(session.clueUsage ?? 0),
         started_at: session.startedAt ?? null,
         completed_at: new Date(this.now()).toISOString(),
         solve_duration_seconds: session.startedAt
           ? Math.max(0, Math.round((this.now() - Date.parse(session.startedAt)) / 1000))
           : null,
-        publication: publicationRequested ? {
+        publication: publicationRequested && passed ? {
           requested: true,
           status: "pending",
           retryable: false,
@@ -911,6 +935,35 @@ export class PracticeRepository {
           message: "This completion was saved locally only.",
         },
       };
+
+      if (!passed) {
+        result.publication = {
+          requested: false,
+          status: "not_requested",
+          retryable: false,
+          message: "The case was returned to the pending practice pool.",
+        };
+        try {
+          await mkdir(this.resultsRoot, { recursive: true });
+          await writeFile(resultPath, `${JSON.stringify(result, null, 2)}\n`, { encoding: "utf8", flag: "wx" });
+          await writeJsonAtomic(answerRegistryPath, updatedAnswerRegistry);
+        } catch (error) {
+          await rm(resultPath, { force: true }).catch(() => {});
+          await writeAtomic(answerRegistryPath, answerText).catch(() => {});
+          throw new PracticeError("REQUEUE_WRITE_FAILED", `The case could not be returned to the practice pool safely: ${error.message}`, 500);
+        }
+        await rm(this.sessionPath, { force: true }).catch(() => {});
+        if (action === "home") return { completed: false, requeued: true, action, publication: result.publication, dashboard: await this.dashboard() };
+        try {
+          const selected = await this._selectUnlocked(record.difficulty);
+          return { completed: false, requeued: true, action, publication: result.publication, ...selected };
+        } catch (error) {
+          if (error instanceof PracticeError && error.code === "NO_CASES") {
+            return { completed: false, requeued: true, action, publication: result.publication, noMore: true, difficulty: record.difficulty };
+          }
+          throw error;
+        }
+      }
 
       const backupPath = join(dirname(record.path), `.${basename(record.path)}.${randomUUID()}.practice-backup`);
       let resultCreated = false;
