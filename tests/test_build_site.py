@@ -162,7 +162,9 @@ class CaseActivityTests(unittest.TestCase):
         source = self.root / "site"
         source.mkdir()
         for name in STATIC_FILES:
-            (source / name).write_text("static source", encoding="utf-8")
+            destination = source / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text("static source", encoding="utf-8")
         (source / "private.md").write_text("never deploy this", encoding="utf-8")
 
     def test_build_cleans_stale_output_and_exports_counts_and_case_references(self):

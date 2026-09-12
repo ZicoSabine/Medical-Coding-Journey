@@ -123,7 +123,11 @@ Medical Coding/
 │   ├── index.html
 │   ├── styles.css
 │   ├── app.js
-│   └── calendar.js
+│   ├── calendar.js
+│   ├── offline.js
+│   ├── sw.js
+│   ├── manifest.webmanifest
+│   └── icons/
 ├── scripts/
 │   ├── build_site.py
 │   ├── practice_core.mjs

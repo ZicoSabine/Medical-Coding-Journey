@@ -21,7 +21,10 @@ STATUSES = {"pending", "not-started", "in-progress", "completed"}
 DIFFICULTIES = {"simple", "intermediate", "complex"}
 DATE_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}\Z")
 TEMPLATE_PATTERN = re.compile(r"(?:^|[\s_-])templates?(?:$|[\s_-])", re.IGNORECASE)
-STATIC_FILES = ("index.html", "styles.css", "app.js", "calendar.js")
+STATIC_FILES = (
+    "index.html", "styles.css", "app.js", "calendar.js", "offline.js",
+    "sw.js", "manifest.webmanifest", "icons/icon-192.svg", "icons/icon-512.svg",
+)
 
 
 class ValidationError(ValueError):
@@ -190,7 +193,9 @@ def build_site(root: Path = ROOT) -> dict[str, int]:
     (output / "data").mkdir(parents=True)
     # An allowlist keeps notes, attachments, and future source-side files out of Pages.
     for name in STATIC_FILES:
-        shutil.copyfile(source / name, output / name)
+        destination = output / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source / name, destination)
     (output / ".nojekyll").touch()
     (output / "data" / "case_activity.json").write_text(
         json.dumps({"activity": activity, "cases": case_index(cases)}, indent=2) + "\n", encoding="utf-8"
